@@ -1,0 +1,13 @@
+type: object
+properties:
+  error:
+    type: string
+    description: Error type
+    example: "NOT_FOUND"
+  message:
+    type: string
+    description: Error message
+example: "Order not found"
+required:
+  - error
+  - message

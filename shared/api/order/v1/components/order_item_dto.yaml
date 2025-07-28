@@ -1,0 +1,31 @@
+type: object
+properties:
+  item_id:
+    type: string
+    description: Item identifier
+    example: "item-456"
+  name:
+    type: string
+    description: Item name
+    example: "iPhone 15 Pro"
+  quantity:
+    type: integer
+    minimum: 1
+    description: Item quantity
+    example: 1
+  unit_price:
+    type: number
+    format: double
+    description: Price per unit
+    example: 299.99
+  total_price:
+    type: number
+    format: double
+    description: Total item price
+    example: 299.99
+required:
+  - item_id
+  - name
+  - quantity
+  - unit_price
+  - total_price
