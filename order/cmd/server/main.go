@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	port = ":8080"
+	port              = ":8080"
+	readHeaderTimeout = 30 * time.Second
 )
 
 func main() {
@@ -28,8 +29,9 @@ func main() {
 	}
 
 	httpServer := &http.Server{
-		Addr:    port,
-		Handler: server,
+		Addr:              port,
+		Handler:           server,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	go func() {

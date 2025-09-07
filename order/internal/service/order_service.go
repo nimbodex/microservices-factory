@@ -137,12 +137,33 @@ func (s *OrderService) GetOrder(ctx context.Context, params orderv1.GetOrderPara
 
 	partUUIDs := make([]uuid.UUID, len(order.PartUUIDs))
 	for i, uuidStr := range order.PartUUIDs {
-		parsedUUID, _ := uuid.Parse(uuidStr)
+		parsedUUID, err := uuid.Parse(uuidStr)
+		if err != nil {
+			log.Printf("Failed to parse part UUID %s: %v", uuidStr, err)
+			return &orderv1.InternalServerError{
+				Error:   "invalid_uuid",
+				Message: fmt.Sprintf("invalid part UUID: %s", uuidStr),
+			}, nil
+		}
 		partUUIDs[i] = parsedUUID
 	}
 
-	orderUUID, _ := uuid.Parse(order.UUID)
-	userUUID, _ := uuid.Parse(order.UserUUID)
+	orderUUID, err := uuid.Parse(order.UUID)
+	if err != nil {
+		log.Printf("Failed to parse order UUID %s: %v", order.UUID, err)
+		return &orderv1.InternalServerError{
+			Error:   "invalid_uuid",
+			Message: fmt.Sprintf("invalid order UUID: %s", order.UUID),
+		}, nil
+	}
+	userUUID, err := uuid.Parse(order.UserUUID)
+	if err != nil {
+		log.Printf("Failed to parse user UUID %s: %v", order.UserUUID, err)
+		return &orderv1.InternalServerError{
+			Error:   "invalid_uuid",
+			Message: fmt.Sprintf("invalid user UUID: %s", order.UserUUID),
+		}, nil
+	}
 
 	return &orderv1.GetOrderResponse{
 		OrderUUID:  orderUUID,
@@ -199,7 +220,14 @@ func (s *OrderService) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 				Message: "payment processing failed",
 			}, nil
 		}
-		parsedUUID, _ := uuid.Parse(paymentResp.TransactionUuid)
+		parsedUUID, err := uuid.Parse(paymentResp.TransactionUuid)
+		if err != nil {
+			log.Printf("Failed to parse transaction UUID %s: %v", paymentResp.TransactionUuid, err)
+			return &orderv1.InternalServerError{
+				Error:   "invalid_uuid",
+				Message: fmt.Sprintf("invalid transaction UUID: %s", paymentResp.TransactionUuid),
+			}, nil
+		}
 		transactionUUID = parsedUUID
 	} else {
 		transactionUUID = uuid.New()
@@ -259,9 +287,13 @@ func (s *OrderService) NewError(ctx context.Context, err error) *orderv1.Interna
 
 func (s *OrderService) Close() {
 	if s.inventoryConn != nil {
-		s.inventoryConn.Close()
+		if err := s.inventoryConn.Close(); err != nil {
+			log.Printf("Failed to close inventory connection: %v", err)
+		}
 	}
 	if s.paymentConn != nil {
-		s.paymentConn.Close()
+		if err := s.paymentConn.Close(); err != nil {
+			log.Printf("Failed to close payment connection: %v", err)
+		}
 	}
 }
