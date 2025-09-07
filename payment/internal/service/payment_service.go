@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	paymentv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/payment/v1"
+	paymentv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/payment/v1"
 )
 
 type PaymentService struct {

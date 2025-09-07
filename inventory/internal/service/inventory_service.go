@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/nexarise/microservices-factory/inventory/internal/storage"
-	inventoryv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/inventory/v1"
+	"github.com/nimbodex/microservices-factory/inventory/internal/storage"
+	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
 type InventoryService struct {

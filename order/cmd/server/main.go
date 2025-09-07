@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nexarise/microservices-factory/order/internal/service"
-	orderv1 "github.com/nexarise/microservices-factory/shared/pkg/openapi/order/v1"
+	"github.com/nimbodex/microservices-factory/order/internal/service"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 )
 
 const (

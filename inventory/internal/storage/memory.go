@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	inventoryv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/inventory/v1"
+	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
 type MemoryStorage struct {

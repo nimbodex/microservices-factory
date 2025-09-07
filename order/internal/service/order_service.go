@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	orderv1 "github.com/nexarise/microservices-factory/shared/pkg/openapi/order/v1"
-	inventoryv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/inventory/v1"
-	paymentv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/payment/v1"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
+	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
+	paymentv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/payment/v1"
 )
 
 type OrderStatus string

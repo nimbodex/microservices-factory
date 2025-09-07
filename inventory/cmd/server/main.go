@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/nexarise/microservices-factory/inventory/internal/service"
-	inventoryv1 "github.com/nexarise/microservices-factory/shared/pkg/proto/inventory/v1"
+	"github.com/nimbodex/microservices-factory/inventory/internal/service"
+	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
 const (

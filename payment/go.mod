@@ -1,12 +1,12 @@
-module github.com/nexarise/microservices-factory/payment
+module github.com/nimbodex/microservices-factory/payment
 
 go 1.24
 
-replace github.com/nexarise/microservices-factory/shared => ../shared
+replace github.com/nimbodex/microservices-factory/shared => ../shared
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/nexarise/microservices-factory/shared v0.0.0-00010101000000-000000000000
+	github.com/nimbodex/microservices-factory/shared v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.69.2
 )
 

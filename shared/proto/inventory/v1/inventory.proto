@@ -5,7 +5,7 @@ package inventory.v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/nexarise/microservices-factory/shared/pkg/proto/inventory/v1;inventoryv1";
+option go_package = "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1;inventoryv1";
 
 service InventoryService {
   rpc GetPart(GetPartRequest) returns (GetPartResponse);

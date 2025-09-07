@@ -1,11 +1,11 @@
-module github.com/nexarise/microservices-factory/inventory
+module github.com/nimbodex/microservices-factory/inventory
 
 go 1.24
 
-replace github.com/nexarise/microservices-factory/shared => ../shared
+replace github.com/nimbodex/microservices-factory/shared => ../shared
 
 require (
-	github.com/nexarise/microservices-factory/shared v0.0.0-00010101000000-000000000000
+	github.com/nimbodex/microservices-factory/shared v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.69.2
 	google.golang.org/protobuf v1.36.5
 )

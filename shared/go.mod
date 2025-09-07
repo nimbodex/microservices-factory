@@ -1,4 +1,4 @@
-module github.com/nexarise/microservices-factory/shared
+module github.com/nimbodex/microservices-factory/shared
 
 go 1.24
 
