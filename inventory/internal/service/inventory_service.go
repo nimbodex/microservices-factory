@@ -16,12 +16,14 @@ type InventoryService struct {
 	storage *storage.MemoryStorage
 }
 
+// NewInventoryService creates a new instance of InventoryService with memory storage.
 func NewInventoryService() *InventoryService {
 	return &InventoryService{
 		storage: storage.NewMemoryStorage(),
 	}
 }
 
+// GetPart retrieves a part by its UUID from the inventory.
 func (s *InventoryService) GetPart(ctx context.Context, req *inventoryv1.GetPartRequest) (*inventoryv1.GetPartResponse, error) {
 	log.Printf("GetPart request received for UUID: %s", req.Uuid)
 
@@ -42,6 +44,7 @@ func (s *InventoryService) GetPart(ctx context.Context, req *inventoryv1.GetPart
 	}, nil
 }
 
+// ListParts retrieves a list of parts matching the provided filter criteria.
 func (s *InventoryService) ListParts(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
 	log.Printf("ListParts request received with filter: %+v", req.Filter)
 

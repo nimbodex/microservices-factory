@@ -17,6 +17,7 @@ type MemoryStorage struct {
 	parts map[string]*inventoryv1.Part
 }
 
+// NewMemoryStorage creates a new instance of MemoryStorage with sample data.
 func NewMemoryStorage() *MemoryStorage {
 	storage := &MemoryStorage{
 		parts: make(map[string]*inventoryv1.Part),
@@ -27,6 +28,7 @@ func NewMemoryStorage() *MemoryStorage {
 	return storage
 }
 
+// GetPart retrieves a part by its UUID from memory storage.
 func (s *MemoryStorage) GetPart(uuid string) (*inventoryv1.Part, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -39,6 +41,7 @@ func (s *MemoryStorage) GetPart(uuid string) (*inventoryv1.Part, error) {
 	return part, nil
 }
 
+// ListParts retrieves a list of parts matching the provided filter criteria.
 func (s *MemoryStorage) ListParts(filter *inventoryv1.PartsFilter) ([]*inventoryv1.Part, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

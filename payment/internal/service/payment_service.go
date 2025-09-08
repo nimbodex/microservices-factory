@@ -13,10 +13,12 @@ type PaymentService struct {
 	paymentv1.UnimplementedPaymentServiceServer
 }
 
+// NewPaymentService creates a new instance of PaymentService.
 func NewPaymentService() *PaymentService {
 	return &PaymentService{}
 }
 
+// PayOrder processes payment for an order and returns a transaction UUID.
 func (s *PaymentService) PayOrder(ctx context.Context, req *paymentv1.PayOrderRequest) (*paymentv1.PayOrderResponse, error) {
 	transactionUUID := uuid.New().String()
 
