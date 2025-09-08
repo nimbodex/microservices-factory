@@ -21,7 +21,10 @@ const (
 func main() {
 	log.Println("Starting Order Service...")
 
-	orderService := service.NewOrderService()
+	orderService, err := service.NewOrderService()
+	if err != nil {
+		log.Fatalf("Failed to create order service: %v", err)
+	}
 
 	server, err := orderv1.NewServer(orderService)
 	if err != nil {
