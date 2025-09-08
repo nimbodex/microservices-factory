@@ -24,6 +24,11 @@ const (
 	StatusCancelled      OrderStatus = "CANCELLED"
 )
 
+const (
+	InventoryServiceAddr = "localhost:50051"
+	PaymentServiceAddr   = "localhost:50052"
+)
+
 type Order struct {
 	UUID      string      `json:"uuid"`
 	UserUUID  string      `json:"user_uuid"`
@@ -56,7 +61,7 @@ func NewOrderService() (*OrderService, error) {
 }
 
 func (s *OrderService) connectToServices() error {
-	inventoryConn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	inventoryConn, err := grpc.NewClient(InventoryServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Failed to connect to inventory service: %v", err)
 		return fmt.Errorf("failed to connect to inventory service: %w", err)
@@ -65,7 +70,7 @@ func (s *OrderService) connectToServices() error {
 	s.inventoryClient = inventoryv1.NewInventoryServiceClient(inventoryConn)
 	log.Println("Connected to inventory service")
 
-	paymentConn, err := grpc.NewClient("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	paymentConn, err := grpc.NewClient(PaymentServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Failed to connect to payment service: %v", err)
 		if s.inventoryConn != nil {
