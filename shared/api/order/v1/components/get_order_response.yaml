@@ -1,0 +1,42 @@
+type: object
+properties:
+  order_uuid:
+    type: string
+    format: uuid
+    description: Unique order identifier
+    example: "789e0123-e89b-12d3-a456-426614174002"
+  user_uuid:
+    type: string
+    format: uuid
+    description: User UUID
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  part_uuids:
+    type: array
+    items:
+      type: string
+      format: uuid
+      description: Part UUID
+      example: "456e7890-e89b-12d3-a456-426614174001"
+    description: List of part UUIDs in the order
+  total_price:
+    type: number
+    format: double
+    description: Total order price
+    example: 123.45
+  transaction_uuid:
+    type: string
+    format: uuid
+    description: Transaction UUID (if paid)
+    example: "abc12345-e89b-12d3-a456-426614174003"
+    nullable: true
+  payment_method:
+    $ref: "./enums/payment_method.yaml"
+    nullable: true
+  status:
+    $ref: "./enums/order_status.yaml"
+required:
+  - order_uuid
+  - user_uuid
+  - part_uuids
+  - total_price
+  - status

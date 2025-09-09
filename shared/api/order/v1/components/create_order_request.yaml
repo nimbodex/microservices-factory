@@ -1,0 +1,19 @@
+type: object
+properties:
+  user_uuid:
+    type: string
+    format: uuid
+    description: User UUID
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  part_uuids:
+    type: array
+    items:
+      type: string
+      format: uuid
+      description: Part UUID
+      example: "456e7890-e89b-12d3-a456-426614174001"
+    description: List of part UUIDs for the order
+    minItems: 1
+required:
+  - user_uuid
+  - part_uuids

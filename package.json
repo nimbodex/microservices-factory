@@ -1,0 +1,11 @@
+{
+    "name": "microservices-factory",
+    "version": "1.0.0",
+    "description": "Microservices Factory Project",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "@redocly/cli": "^1.16.0"
+    }
+}

@@ -1,0 +1,17 @@
+type: object
+properties:
+  error:
+    type: string
+    description: Error type
+    example: "BAD_REQUEST"
+  message:
+    type: string
+    description: Error message
+    example: "Invalid request data"
+  details:
+    type: object
+    description: Error details
+    additionalProperties: true
+required:
+  - error
+  - message

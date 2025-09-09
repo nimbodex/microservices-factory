@@ -1,0 +1,9 @@
+type: object
+properties:
+  transaction_uuid:
+    type: string
+    format: uuid
+    description: Transaction UUID
+    example: "abc12345-e89b-12d3-a456-426614174003"
+required:
+  - transaction_uuid

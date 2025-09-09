@@ -1,0 +1,48 @@
+type: object
+properties:
+  uuid:
+    type: string
+    format: uuid
+    description: Unique order identifier
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  customer_id:
+    type: string
+    description: Customer identifier
+    example: "customer-123"
+  items:
+    type: array
+    items:
+      $ref: "./order_item_dto.yaml"
+    description: List of items in the order
+  total_amount:
+    type: number
+    format: double
+    description: Total order amount
+    example: 299.99
+  currency:
+    type: string
+    description: Order currency
+    example: "RUB"
+  status:
+    $ref: "./enums/order_status.yaml"
+  payment_method:
+    $ref: "./enums/payment_method.yaml"
+  created_at:
+    type: string
+    format: date-time
+    description: Order creation date
+    example: "2024-01-15T10:30:00Z"
+  updated_at:
+    type: string
+    format: date-time
+    description: Order last update date
+    example: "2024-01-15T10:35:00Z"
+required:
+  - uuid
+  - customer_id
+  - items
+  - total_amount
+  - currency
+  - status
+  - created_at
+  - updated_at
