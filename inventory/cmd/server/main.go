@@ -7,7 +7,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/nimbodex/microservices-factory/inventory/internal/service"
+	v1 "github.com/nimbodex/microservices-factory/inventory/internal/api/inventory/v1"
+	"github.com/nimbodex/microservices-factory/inventory/internal/repository/part"
+	inventoryservice "github.com/nimbodex/microservices-factory/inventory/internal/service/inventory"
 	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -25,8 +27,16 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	inventoryService := service.NewInventoryService()
-	inventoryv1.RegisterInventoryServiceServer(grpcServer, inventoryService)
+	// Initialize repository
+	partRepo := part.NewMemoryPartRepository()
+
+	// Initialize service layer
+	inventoryService := inventoryservice.NewInventoryService(partRepo)
+
+	// Initialize API handler
+	apiHandler := v1.NewAPIHandler(inventoryService)
+
+	inventoryv1.RegisterInventoryServiceServer(grpcServer, apiHandler)
 
 	reflection.Register(grpcServer)
 
