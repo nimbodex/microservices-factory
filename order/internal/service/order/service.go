@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 
 	"github.com/nimbodex/microservices-factory/order/internal/client"
 	"github.com/nimbodex/microservices-factory/order/internal/converter"
 	"github.com/nimbodex/microservices-factory/order/internal/model"
 	"github.com/nimbodex/microservices-factory/order/internal/repository"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 )
 
 // OrderServiceImpl implements OrderService interface

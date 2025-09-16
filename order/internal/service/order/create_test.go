@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -12,6 +11,7 @@ import (
 	clientmocks "github.com/nimbodex/microservices-factory/order/internal/client/mocks"
 	"github.com/nimbodex/microservices-factory/order/internal/model"
 	repomocks "github.com/nimbodex/microservices-factory/order/internal/repository/mocks"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 )
 
 func (s *OrderServiceTestSuite) TestCreateOrder_Success() {

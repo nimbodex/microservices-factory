@@ -3,9 +3,8 @@ package v1
 import (
 	"context"
 
-	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
-
 	"github.com/nimbodex/microservices-factory/order/internal/service"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 )
 
 // APIHandler handles HTTP requests for order API

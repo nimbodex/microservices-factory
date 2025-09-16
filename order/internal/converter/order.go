@@ -2,9 +2,9 @@ package converter
 
 import (
 	"github.com/google/uuid"
-	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 
 	"github.com/nimbodex/microservices-factory/order/internal/model"
+	orderv1 "github.com/nimbodex/microservices-factory/shared/pkg/openapi/order/v1"
 )
 
 // ToCreateOrderRequest converts OpenAPI request to service model

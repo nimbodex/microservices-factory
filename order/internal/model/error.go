@@ -35,7 +35,7 @@ func NewOrderNotFoundError(orderUUID string) *ServiceError {
 	}
 }
 
-func NewInvalidStatusError(currentStatus OrderStatus, expectedStatus OrderStatus) *ServiceError {
+func NewInvalidStatusError(currentStatus, expectedStatus OrderStatus) *ServiceError {
 	return &ServiceError{
 		Code:    ErrCodeInvalidStatus,
 		Message: fmt.Sprintf("invalid order status: expected %s, got %s", expectedStatus, currentStatus),
