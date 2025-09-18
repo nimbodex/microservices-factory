@@ -16,7 +16,6 @@ import (
 )
 
 func (s *OrderServiceTestSuite) TestPayOrder_Success() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 	userUUID := uuid.New()
@@ -43,30 +42,24 @@ func (s *OrderServiceTestSuite) TestPayOrder_Success() {
 	updatedOrder.Status = model.StatusPaid
 	updatedOrder.UpdatedAt = time.Now()
 
-	// Mock repository
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(existingOrder, nil)
 	mockRepo.On("Update", mock.Anything, mock.MatchedBy(func(order *model.Order) bool {
 		return order.UUID == orderUUID && order.Status == model.StatusPaid
 	})).Return(nil)
 
-	// Mock payment client
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 	mockPaymentClient.On("PayOrder", mock.Anything, orderUUID, client.PaymentMethodCard).Return(&client.PaymentResult{
 		TransactionUUID: transactionUUID,
 		Success:         true,
 	}, nil)
 
-	// Mock inventory client (not used in pay)
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.PayOrder(ctx, req, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -74,13 +67,11 @@ func (s *OrderServiceTestSuite) TestPayOrder_Success() {
 	s.True(ok)
 	s.Equal(transactionUUID, payResp.TransactionUUID)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 	mockPaymentClient.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestPayOrder_OrderNotFound() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 
@@ -92,21 +83,16 @@ func (s *OrderServiceTestSuite) TestPayOrder_OrderNotFound() {
 		PaymentMethod: orderv1.PaymentMethodCARD,
 	}
 
-	// Mock repository to return error
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(nil, assert.AnError)
 
-	// Mock clients
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.PayOrder(ctx, req, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -115,12 +101,10 @@ func (s *OrderServiceTestSuite) TestPayOrder_OrderNotFound() {
 	s.Equal("order_not_found", notFoundErr.Error)
 	s.Equal("order not found", notFoundErr.Message)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestPayOrder_InvalidStatus() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 	userUUID := uuid.New()
@@ -133,31 +117,25 @@ func (s *OrderServiceTestSuite) TestPayOrder_InvalidStatus() {
 		PaymentMethod: orderv1.PaymentMethodCARD,
 	}
 
-	// Order already paid
 	existingOrder := &model.Order{
 		UUID:      orderUUID,
 		UserUUID:  userUUID,
 		PartUUIDs: []uuid.UUID{uuid.New()},
-		Status:    model.StatusPaid, // Already paid
+		Status:    model.StatusPaid,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(existingOrder, nil)
 
-	// Mock clients
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.PayOrder(ctx, req, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -166,12 +144,10 @@ func (s *OrderServiceTestSuite) TestPayOrder_InvalidStatus() {
 	s.Equal("invalid_status", conflictErr.Error)
 	s.Equal("order cannot be paid", conflictErr.Message)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestPayOrder_PaymentFailed() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 	userUUID := uuid.New()
@@ -193,24 +169,18 @@ func (s *OrderServiceTestSuite) TestPayOrder_PaymentFailed() {
 		UpdatedAt: time.Now(),
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(existingOrder, nil)
 
-	// Mock payment client to return error
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 	mockPaymentClient.On("PayOrder", mock.Anything, orderUUID, client.PaymentMethodCard).Return(nil, assert.AnError)
 
-	// Mock inventory client
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.PayOrder(ctx, req, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -219,7 +189,6 @@ func (s *OrderServiceTestSuite) TestPayOrder_PaymentFailed() {
 	s.Equal("payment_failed", internalErr.Error)
 	s.Equal("payment processing failed", internalErr.Message)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 	mockPaymentClient.AssertExpectations(s.T())
 }

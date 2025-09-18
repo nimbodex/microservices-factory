@@ -14,7 +14,6 @@ import (
 )
 
 func (s *InventoryServiceTestSuite) TestGetPart_Success() {
-	// Arrange
 	ctx := context.Background()
 	partUUID := uuid.New()
 
@@ -33,17 +32,13 @@ func (s *InventoryServiceTestSuite) TestGetPart_Success() {
 		UpdatedAt:     time.Now(),
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, partUUID).Return(expectedPart, nil)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.GetPart(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 	s.NotNil(result.Part)
@@ -54,62 +49,48 @@ func (s *InventoryServiceTestSuite) TestGetPart_Success() {
 	s.Equal(int64(10), result.Part.StockQuantity)
 	s.Equal(inventoryv1.Category_CATEGORY_ENGINE, result.Part.Category)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestGetPart_EmptyUUID() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.GetPartRequest{
 		Uuid: "",
 	}
 
-	// Mock repository (should not be called)
 	mockRepo := repomocks.NewPartRepository(s.T())
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.GetPart(ctx, req)
 
-	// Assert
 	s.Error(err)
 	s.Nil(result)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestGetPart_InvalidUUID() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.GetPartRequest{
 		Uuid: "invalid-uuid",
 	}
 
-	// Mock repository (should not be called)
 	mockRepo := repomocks.NewPartRepository(s.T())
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.GetPart(ctx, req)
 
-	// Assert
 	s.Error(err)
 	s.Nil(result)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestGetPart_NotFound() {
-	// Arrange
 	ctx := context.Background()
 	partUUID := uuid.New()
 
@@ -117,20 +98,15 @@ func (s *InventoryServiceTestSuite) TestGetPart_NotFound() {
 		Uuid: partUUID.String(),
 	}
 
-	// Mock repository to return error
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, partUUID).Return(nil, assert.AnError)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.GetPart(ctx, req)
 
-	// Assert
 	s.Error(err)
 	s.Nil(result)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }

@@ -15,7 +15,6 @@ import (
 )
 
 func (s *OrderServiceTestSuite) TestCreateOrder_Success() {
-	// Arrange
 	ctx := context.Background()
 	userUUID := uuid.New()
 	partUUID1 := uuid.New()
@@ -26,7 +25,6 @@ func (s *OrderServiceTestSuite) TestCreateOrder_Success() {
 		PartUuids: []uuid.UUID{partUUID1, partUUID2},
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("Create", mock.Anything, mock.MatchedBy(func(order *model.Order) bool {
 		return order.UserUUID == userUUID &&
@@ -34,7 +32,6 @@ func (s *OrderServiceTestSuite) TestCreateOrder_Success() {
 			order.Status == model.StatusPendingPayment
 	})).Return(nil)
 
-	// Mock inventory client
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockInventoryClient.On("GetPart", mock.Anything, partUUID1).Return(&client.Part{
 		UUID:  partUUID1,
@@ -47,31 +44,25 @@ func (s *OrderServiceTestSuite) TestCreateOrder_Success() {
 		Price: 200.0,
 	}, nil)
 
-	// Mock payment client (not used in create)
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.CreateOrder(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
 	createResp, ok := result.(*orderv1.CreateOrderResponse)
 	s.True(ok)
 	s.NotEmpty(createResp.OrderUUID)
-	s.Equal(0.0, createResp.TotalPrice) // Simplified calculation
+	s.Equal(0.0, createResp.TotalPrice)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 	mockInventoryClient.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestCreateOrder_PartNotFound() {
-	// Arrange
 	ctx := context.Background()
 	userUUID := uuid.New()
 	partUUID := uuid.New()
@@ -81,23 +72,17 @@ func (s *OrderServiceTestSuite) TestCreateOrder_PartNotFound() {
 		PartUuids: []uuid.UUID{partUUID},
 	}
 
-	// Mock repository (should not be called)
 	mockRepo := repomocks.NewOrderRepository(s.T())
 
-	// Mock inventory client to return error
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockInventoryClient.On("GetPart", mock.Anything, partUUID).Return(nil, assert.AnError)
 
-	// Mock payment client
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.CreateOrder(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -106,13 +91,11 @@ func (s *OrderServiceTestSuite) TestCreateOrder_PartNotFound() {
 	s.Equal("part_not_found", badReqErr.Error)
 	s.Contains(badReqErr.Message, "part")
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 	mockInventoryClient.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestCreateOrder_RepositoryError() {
-	// Arrange
 	ctx := context.Background()
 	userUUID := uuid.New()
 	partUUID := uuid.New()
@@ -122,11 +105,9 @@ func (s *OrderServiceTestSuite) TestCreateOrder_RepositoryError() {
 		PartUuids: []uuid.UUID{partUUID},
 	}
 
-	// Mock repository to return error
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("Create", mock.Anything, mock.Anything).Return(assert.AnError)
 
-	// Mock inventory client
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockInventoryClient.On("GetPart", mock.Anything, partUUID).Return(&client.Part{
 		UUID:  partUUID,
@@ -134,16 +115,12 @@ func (s *OrderServiceTestSuite) TestCreateOrder_RepositoryError() {
 		Price: 100.0,
 	}, nil)
 
-	// Mock payment client
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.CreateOrder(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -152,7 +129,6 @@ func (s *OrderServiceTestSuite) TestCreateOrder_RepositoryError() {
 	s.Equal("creation_failed", internalErr.Error)
 	s.Equal("failed to create order", internalErr.Message)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 	mockInventoryClient.AssertExpectations(s.T())
 }

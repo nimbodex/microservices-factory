@@ -15,7 +15,6 @@ import (
 )
 
 func (s *OrderServiceTestSuite) TestGetOrder_Success() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 	userUUID := uuid.New()
@@ -35,21 +34,16 @@ func (s *OrderServiceTestSuite) TestGetOrder_Success() {
 		UpdatedAt: time.Now(),
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(expectedOrder, nil)
 
-	// Mock clients (not used in get)
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.GetOrder(ctx, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -59,14 +53,12 @@ func (s *OrderServiceTestSuite) TestGetOrder_Success() {
 	s.Equal(userUUID, getResp.UserUUID)
 	s.Len(getResp.PartUuids, 2)
 	s.Equal(orderv1.OrderStatus(model.StatusPendingPayment), getResp.Status)
-	s.Equal(0.0, getResp.TotalPrice) // Simplified calculation
+	s.Equal(0.0, getResp.TotalPrice)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *OrderServiceTestSuite) TestGetOrder_NotFound() {
-	// Arrange
 	ctx := context.Background()
 	orderUUID := uuid.New()
 
@@ -74,21 +66,16 @@ func (s *OrderServiceTestSuite) TestGetOrder_NotFound() {
 		OrderUUID: orderUUID,
 	}
 
-	// Mock repository to return error
 	mockRepo := repomocks.NewOrderRepository(s.T())
 	mockRepo.On("GetByUUID", mock.Anything, orderUUID).Return(nil, assert.AnError)
 
-	// Mock clients
 	mockInventoryClient := clientmocks.NewInventoryClient(s.T())
 	mockPaymentClient := clientmocks.NewPaymentClient(s.T())
 
-	// Create service
 	service := NewOrderService(mockRepo, mockInventoryClient, mockPaymentClient)
 
-	// Act
 	result, err := service.GetOrder(ctx, params)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 
@@ -97,6 +84,5 @@ func (s *OrderServiceTestSuite) TestGetOrder_NotFound() {
 	s.Equal("order_not_found", notFoundErr.Error)
 	s.Equal("order not found", notFoundErr.Message)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }

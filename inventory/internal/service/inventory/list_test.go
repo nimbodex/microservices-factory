@@ -14,7 +14,6 @@ import (
 )
 
 func (s *InventoryServiceTestSuite) TestListParts_Success() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.ListPartsRequest{
@@ -46,31 +45,25 @@ func (s *InventoryServiceTestSuite) TestListParts_Success() {
 		},
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("List", mock.Anything, mock.MatchedBy(func(filter *model.PartsFilter) bool {
 		return len(filter.Categories) == 1 && filter.Categories[0] == inventoryv1.Category_CATEGORY_ENGINE
 	})).Return(expectedParts, nil)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.ListParts(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 	s.Len(result.Parts, 2)
 	s.Equal("Engine Part 1", result.Parts[0].Name)
 	s.Equal("Engine Part 2", result.Parts[1].Name)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestListParts_EmptyFilter() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.ListPartsRequest{
@@ -90,30 +83,24 @@ func (s *InventoryServiceTestSuite) TestListParts_EmptyFilter() {
 		},
 	}
 
-	// Mock repository
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("List", mock.Anything, mock.MatchedBy(func(filter *model.PartsFilter) bool {
 		return filter != nil
 	})).Return(expectedParts, nil)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.ListParts(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 	s.Len(result.Parts, 1)
 	s.Equal("Part 1", result.Parts[0].Name)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestListParts_RepositoryError() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.ListPartsRequest{
@@ -122,26 +109,20 @@ func (s *InventoryServiceTestSuite) TestListParts_RepositoryError() {
 		},
 	}
 
-	// Mock repository to return error
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("List", mock.Anything, mock.Anything).Return(nil, assert.AnError)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.ListParts(ctx, req)
 
-	// Assert
 	s.Error(err)
 	s.Nil(result)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
 
 func (s *InventoryServiceTestSuite) TestListParts_EmptyResult() {
-	// Arrange
 	ctx := context.Background()
 
 	req := &inventoryv1.ListPartsRequest{
@@ -150,21 +131,16 @@ func (s *InventoryServiceTestSuite) TestListParts_EmptyResult() {
 		},
 	}
 
-	// Mock repository to return empty result
 	mockRepo := repomocks.NewPartRepository(s.T())
 	mockRepo.On("List", mock.Anything, mock.Anything).Return([]*model.Part{}, nil)
 
-	// Create service
 	service := NewInventoryService(mockRepo)
 
-	// Act
 	result, err := service.ListParts(ctx, req)
 
-	// Assert
 	s.NoError(err)
 	s.NotNil(result)
 	s.Len(result.Parts, 0)
 
-	// Verify mocks
 	mockRepo.AssertExpectations(s.T())
 }
