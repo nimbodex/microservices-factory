@@ -9,6 +9,10 @@ import (
 
 // ToCreateOrderRequest converts OpenAPI request to service model
 func ToCreateOrderRequest(req *orderv1.CreateOrderRequest) *model.CreateOrderRequest {
+	if req == nil {
+		return nil
+	}
+
 	partUUIDs := make([]uuid.UUID, len(req.PartUuids))
 	copy(partUUIDs, req.PartUuids)
 
@@ -20,6 +24,10 @@ func ToCreateOrderRequest(req *orderv1.CreateOrderRequest) *model.CreateOrderReq
 
 // ToCreateOrderResponse converts service model to OpenAPI response
 func ToCreateOrderResponse(order *model.Order, totalPrice float64) *orderv1.CreateOrderResponse {
+	if order == nil {
+		return nil
+	}
+
 	return &orderv1.CreateOrderResponse{
 		OrderUUID:  order.UUID,
 		TotalPrice: totalPrice,
@@ -28,6 +36,10 @@ func ToCreateOrderResponse(order *model.Order, totalPrice float64) *orderv1.Crea
 
 // ToGetOrderResponse converts service model to OpenAPI response
 func ToGetOrderResponse(order *model.Order, totalPrice float64) *orderv1.GetOrderResponse {
+	if order == nil {
+		return nil
+	}
+
 	return &orderv1.GetOrderResponse{
 		OrderUUID:  order.UUID,
 		UserUUID:   order.UserUUID,
@@ -39,6 +51,10 @@ func ToGetOrderResponse(order *model.Order, totalPrice float64) *orderv1.GetOrde
 
 // ToPayOrderRequest converts OpenAPI request to service model
 func ToPayOrderRequest(req *orderv1.PayOrderRequest) *model.PayOrderRequest {
+	if req == nil {
+		return nil
+	}
+
 	var paymentMethod model.PaymentMethod
 	switch req.PaymentMethod {
 	case orderv1.PaymentMethodCARD:

@@ -1,6 +1,8 @@
 package converter
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 
 	"github.com/nimbodex/microservices-factory/payment/internal/model"
@@ -33,6 +35,10 @@ func ToProtoPaymentMethod(serviceMethod model.PaymentMethod) paymentv1.PaymentMe
 
 // ToServicePayOrderRequest converts protobuf request to service model
 func ToServicePayOrderRequest(protoReq *paymentv1.PayOrderRequest) (*model.PayOrderRequest, error) {
+	if protoReq == nil {
+		return nil, fmt.Errorf("protoReq cannot be nil")
+	}
+
 	orderUUID, err := uuid.Parse(protoReq.OrderUuid)
 	if err != nil {
 		return nil, err

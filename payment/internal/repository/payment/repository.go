@@ -25,6 +25,10 @@ func NewMemoryPaymentRepository() *MemoryPaymentRepository {
 
 // Create creates a new payment
 func (r *MemoryPaymentRepository) Create(ctx context.Context, payment *model.Payment) error {
+	if payment == nil {
+		return fmt.Errorf("payment cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -89,6 +93,10 @@ func (r *MemoryPaymentRepository) GetByTransactionUUID(ctx context.Context, tran
 
 // Update updates an existing payment
 func (r *MemoryPaymentRepository) Update(ctx context.Context, payment *model.Payment) error {
+	if payment == nil {
+		return fmt.Errorf("payment cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

@@ -25,6 +25,10 @@ func NewMemoryOrderRepository() *MemoryOrderRepository {
 
 // Create creates a new order in the repository
 func (r *MemoryOrderRepository) Create(ctx context.Context, order *model.Order) error {
+	if order == nil {
+		return fmt.Errorf("order cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -57,6 +61,10 @@ func (r *MemoryOrderRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (
 
 // Update updates an existing order
 func (r *MemoryOrderRepository) Update(ctx context.Context, order *model.Order) error {
+	if order == nil {
+		return fmt.Errorf("order cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

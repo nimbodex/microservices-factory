@@ -1,6 +1,8 @@
 package converter
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 
 	"github.com/nimbodex/microservices-factory/payment/internal/model"
@@ -9,6 +11,10 @@ import (
 
 // ToRepoPayment converts service model to repository model
 func ToRepoPayment(servicePayment *model.Payment) *repomodel.Payment {
+	if servicePayment == nil {
+		return nil
+	}
+
 	return &repomodel.Payment{
 		UUID:            servicePayment.UUID.String(),
 		OrderUUID:       servicePayment.OrderUUID.String(),
@@ -23,6 +29,10 @@ func ToRepoPayment(servicePayment *model.Payment) *repomodel.Payment {
 
 // FromRepoPayment converts repository model to service model
 func FromRepoPayment(repoPayment *repomodel.Payment) (*model.Payment, error) {
+	if repoPayment == nil {
+		return nil, fmt.Errorf("repoPayment cannot be nil")
+	}
+
 	paymentUUID, err := uuid.Parse(repoPayment.UUID)
 	if err != nil {
 		return nil, err

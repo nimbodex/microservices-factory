@@ -1,6 +1,8 @@
 package converter
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 
 	"github.com/nimbodex/microservices-factory/order/internal/model"
@@ -9,6 +11,10 @@ import (
 
 // ToRepoOrder converts service model to repository model
 func ToRepoOrder(order *model.Order) *repomodel.Order {
+	if order == nil {
+		return nil
+	}
+
 	partUUIDs := make([]string, len(order.PartUUIDs))
 	for i, uuid := range order.PartUUIDs {
 		partUUIDs[i] = uuid.String()
@@ -26,6 +32,10 @@ func ToRepoOrder(order *model.Order) *repomodel.Order {
 
 // FromRepoOrder converts repository model to service model
 func FromRepoOrder(repoOrder *repomodel.Order) (*model.Order, error) {
+	if repoOrder == nil {
+		return nil, fmt.Errorf("repoOrder cannot be nil")
+	}
+
 	orderUUID, err := uuid.Parse(repoOrder.UUID)
 	if err != nil {
 		return nil, err
@@ -57,6 +67,10 @@ func FromRepoOrder(repoOrder *repomodel.Order) (*model.Order, error) {
 
 // ToRepoPart converts service model to repository model
 func ToRepoPart(part *model.Part) *repomodel.Part {
+	if part == nil {
+		return nil
+	}
+
 	return &repomodel.Part{
 		UUID:  part.UUID.String(),
 		Name:  part.Name,
@@ -66,6 +80,10 @@ func ToRepoPart(part *model.Part) *repomodel.Part {
 
 // FromRepoPart converts repository model to service model
 func FromRepoPart(repoPart *repomodel.Part) (*model.Part, error) {
+	if repoPart == nil {
+		return nil, fmt.Errorf("repoPart cannot be nil")
+	}
+
 	partUUID, err := uuid.Parse(repoPart.UUID)
 	if err != nil {
 		return nil, err

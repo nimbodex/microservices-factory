@@ -71,6 +71,10 @@ func (r *MemoryPartRepository) List(ctx context.Context, filter *model.PartsFilt
 
 // Create creates a new part
 func (r *MemoryPartRepository) Create(ctx context.Context, part *model.Part) error {
+	if part == nil {
+		return fmt.Errorf("part cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -88,6 +92,10 @@ func (r *MemoryPartRepository) Create(ctx context.Context, part *model.Part) err
 
 // Update updates an existing part
 func (r *MemoryPartRepository) Update(ctx context.Context, part *model.Part) error {
+	if part == nil {
+		return fmt.Errorf("part cannot be nil")
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

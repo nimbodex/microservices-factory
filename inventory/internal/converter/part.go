@@ -2,6 +2,7 @@ package converter
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -13,12 +14,7 @@ import (
 
 // safeInt64ToInt32 safely converts int64 to int32 with overflow check
 func safeInt64ToInt32(value int64) (int32, error) {
-	const (
-		maxInt32 = int64(2147483647)  // 2^31 - 1
-		minInt32 = int64(-2147483648) // -2^31
-	)
-
-	if value > maxInt32 || value < minInt32 {
+	if value > math.MaxInt32 || value < math.MinInt32 {
 		return 0, fmt.Errorf("integer overflow: value %d is out of int32 range", value)
 	}
 
@@ -27,6 +23,10 @@ func safeInt64ToInt32(value int64) (int32, error) {
 
 // ToServicePart converts protobuf part to service model
 func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
+	if protoPart == nil {
+		return nil, fmt.Errorf("protoPart cannot be nil")
+	}
+
 	partUUID, err := uuid.Parse(protoPart.Uuid)
 	if err != nil {
 		return nil, err
@@ -81,6 +81,10 @@ func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
 
 // ToProtoPart converts service model to protobuf part
 func ToProtoPart(servicePart *model.Part) *inventoryv1.Part {
+	if servicePart == nil {
+		return nil
+	}
+
 	var dimensions *inventoryv1.Dimensions
 	if servicePart.Dimensions != nil {
 		dimensions = &inventoryv1.Dimensions{
@@ -102,9 +106,11 @@ func ToProtoPart(servicePart *model.Part) *inventoryv1.Part {
 
 	// Convert metadata from interface{} to structpb
 	metadata := make(map[string]*structpb.Value)
-	for k, v := range servicePart.Metadata {
-		if val, err := structpb.NewValue(v); err == nil {
-			metadata[k] = val
+	if servicePart.Metadata != nil {
+		for k, v := range servicePart.Metadata {
+			if val, err := structpb.NewValue(v); err == nil {
+				metadata[k] = val
+			}
 		}
 	}
 
