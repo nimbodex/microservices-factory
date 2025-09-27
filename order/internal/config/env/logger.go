@@ -23,17 +23,14 @@ func NewLoggerConfig() *LoggerConfig {
 	}
 }
 
-// Level возвращает уровень логирования
 func (c *LoggerConfig) Level() string {
 	return c.level
 }
 
-// AsJSON возвращает флаг для вывода логов в формате JSON
 func (c *LoggerConfig) AsJSON() bool {
 	return c.asJSON
 }
 
-// getEnvOrDefault возвращает значение переменной окружения или значение по умолчанию
 func getEnvOrDefault(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value

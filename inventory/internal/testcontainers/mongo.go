@@ -47,8 +47,7 @@ func NewMongoContainer(ctx context.Context) (*MongoContainer, error) {
 		return nil, fmt.Errorf("failed to get mapped port: %w", err)
 	}
 
-	uri := fmt.Sprintf("mongodb://%s:%s/test_inventory",
-		host, port.Port())
+	uri := fmt.Sprintf("mongodb://%s:%s", host, port.Port())
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {

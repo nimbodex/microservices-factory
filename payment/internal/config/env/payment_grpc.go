@@ -18,17 +18,14 @@ func NewPaymentGRPCConfig() *PaymentGRPCConfig {
 	}
 }
 
-// Host возвращает хост gRPC сервера Payment
 func (c *PaymentGRPCConfig) Host() string {
 	return c.host
 }
 
-// Port возвращает порт gRPC сервера Payment
 func (c *PaymentGRPCConfig) Port() string {
 	return c.port
 }
 
-// Address возвращает адрес для прослушивания gRPC сервера Payment
 func (c *PaymentGRPCConfig) Address() string {
 	return net.JoinHostPort(c.host, c.port)
 }

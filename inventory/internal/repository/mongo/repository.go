@@ -23,7 +23,6 @@ func NewPartRepository(client *mongo.Client, database string) *MongoPartReposito
 	}
 }
 
-// GetByUUID retrieves a part by its UUID
 func (r *MongoPartRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*model.Part, error) {
 	var part model.Part
 	err := r.collection.FindOne(ctx, bson.M{"uuid": uuid.String()}).Decode(&part)
@@ -36,11 +35,9 @@ func (r *MongoPartRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*m
 	return &part, nil
 }
 
-// List retrieves parts matching the filter criteria
 func (r *MongoPartRepository) List(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error) {
 	var parts []*model.Part
 
-	// Build MongoDB filter
 	mongoFilter := bson.M{}
 	if filter != nil {
 		if len(filter.UUIDs) > 0 {
@@ -73,7 +70,6 @@ func (r *MongoPartRepository) List(ctx context.Context, filter *model.PartsFilte
 	return parts, nil
 }
 
-// Create creates a new part
 func (r *MongoPartRepository) Create(ctx context.Context, part *model.Part) error {
 	if part == nil {
 		return fmt.Errorf("part cannot be nil")
@@ -87,7 +83,6 @@ func (r *MongoPartRepository) Create(ctx context.Context, part *model.Part) erro
 	return nil
 }
 
-// Update updates an existing part
 func (r *MongoPartRepository) Update(ctx context.Context, part *model.Part) error {
 	if part == nil {
 		return fmt.Errorf("part cannot be nil")
@@ -108,7 +103,6 @@ func (r *MongoPartRepository) Update(ctx context.Context, part *model.Part) erro
 	return nil
 }
 
-// Delete removes a part by its UUID
 func (r *MongoPartRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	filter := bson.M{"uuid": uuid.String()}
 

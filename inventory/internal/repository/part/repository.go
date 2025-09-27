@@ -13,13 +13,11 @@ import (
 	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
-// MemoryPartRepository implements PartRepository using in-memory storage
 type MemoryPartRepository struct {
 	mu    sync.RWMutex
 	parts map[string]*model.Part
 }
 
-// NewMemoryPartRepository creates a new in-memory part repository
 func NewMemoryPartRepository() *MemoryPartRepository {
 	repo := &MemoryPartRepository{
 		parts: make(map[string]*model.Part),
@@ -29,7 +27,6 @@ func NewMemoryPartRepository() *MemoryPartRepository {
 	return repo
 }
 
-// GetByUUID retrieves a part by its UUID
 func (r *MemoryPartRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*model.Part, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -39,12 +36,10 @@ func (r *MemoryPartRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*
 		return nil, fmt.Errorf("part with UUID %s not found", uuid)
 	}
 
-	// Return a copy to avoid external modifications
 	partCopy := *part
 	return &partCopy, nil
 }
 
-// List retrieves parts matching the filter criteria
 func (r *MemoryPartRepository) List(ctx context.Context, filter *model.PartsFilter) ([]*model.Part, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -69,7 +64,6 @@ func (r *MemoryPartRepository) List(ctx context.Context, filter *model.PartsFilt
 	return result, nil
 }
 
-// Create creates a new part
 func (r *MemoryPartRepository) Create(ctx context.Context, part *model.Part) error {
 	if part == nil {
 		return fmt.Errorf("part cannot be nil")
@@ -83,14 +77,12 @@ func (r *MemoryPartRepository) Create(ctx context.Context, part *model.Part) err
 		return fmt.Errorf("part with UUID %s already exists", part.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	partCopy := *part
 	r.parts[partKey] = &partCopy
 
 	return nil
 }
 
-// Update updates an existing part
 func (r *MemoryPartRepository) Update(ctx context.Context, part *model.Part) error {
 	if part == nil {
 		return fmt.Errorf("part cannot be nil")
@@ -104,14 +96,12 @@ func (r *MemoryPartRepository) Update(ctx context.Context, part *model.Part) err
 		return fmt.Errorf("part with UUID %s not found", part.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	partCopy := *part
 	r.parts[partKey] = &partCopy
 
 	return nil
 }
 
-// Delete removes a part by its UUID
 func (r *MemoryPartRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -236,7 +226,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			Manufacturer: &model.Manufacturer{
 				Name:    "SpaceTech Industries",
 				Country: "Germany",
-				Website: "https://spacetech-industries.com",
+				Website: "https://spacetech.de",
 			},
 			Tags: []string{"quantum", "engine", "premium", "long-range"},
 			Metadata: map[string]interface{}{
@@ -263,7 +253,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			Manufacturer: &model.Manufacturer{
 				Name:    "EcoFuel Corp",
 				Country: "Japan",
-				Website: "https://ecofuel.jp",
+				Website: "https://spacetech.de",
 			},
 			Tags: []string{"hydrogen", "fuel", "eco-friendly", "clean"},
 			Metadata: map[string]interface{}{
@@ -290,7 +280,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			Manufacturer: &model.Manufacturer{
 				Name:    "ClearSpace Optics",
 				Country: "USA",
-				Website: "https://clearspace-optics.com",
+				Website: "https://spacetech.de",
 			},
 			Tags: []string{"porthole", "observation", "reinforced", "transparent"},
 			Metadata: map[string]interface{}{
@@ -317,7 +307,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			Manufacturer: &model.Manufacturer{
 				Name:    "SolarWings Ltd",
 				Country: "Germany",
-				Website: "https://solarwings.de",
+				Website: "https://spacetech.de",
 			},
 			Tags: []string{"solar", "wing", "adaptive", "energy"},
 			Metadata: map[string]interface{}{

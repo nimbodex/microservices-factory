@@ -18,17 +18,14 @@ func NewInventoryGRPCConfig() *InventoryGRPCConfig {
 	}
 }
 
-// Host возвращает хост gRPC сервера Inventory
 func (c *InventoryGRPCConfig) Host() string {
 	return c.host
 }
 
-// Port возвращает порт gRPC сервера Inventory
 func (c *InventoryGRPCConfig) Port() string {
 	return c.port
 }
 
-// Address возвращает адрес gRPC сервера Inventory
 func (c *InventoryGRPCConfig) Address() string {
 	return net.JoinHostPort(c.host, c.port)
 }

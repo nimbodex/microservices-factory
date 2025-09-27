@@ -58,7 +58,6 @@ func (a *App) Run() error {
 	return nil
 }
 
-// loggerAdapter адаптирует logger.Logger для использования с closer
 type loggerAdapter struct {
 	logger logger.Logger
 }

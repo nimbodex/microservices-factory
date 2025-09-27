@@ -29,7 +29,6 @@ func CleanupTestData(ctx context.Context, env *TestEnvironment) {
 
 	logger.GetLogger().Info(ctx, "Cleaning up test data")
 
-	// Drop the test database to ensure clean state
 	if err := env.Database().Drop(ctx); err != nil {
 		logger.GetLogger().Error(ctx, "Failed to drop test database", zap.Error(err))
 	}

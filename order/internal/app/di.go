@@ -16,12 +16,10 @@ func NewContainer() *Container {
 	}
 }
 
-// Config возвращает конфигурацию
 func (c *Container) Config() *config.Config {
 	return c.config
 }
 
-// BuildApp создает и настраивает приложение
 func (c *Container) BuildApp() *App {
 	return New(c.config)
 }

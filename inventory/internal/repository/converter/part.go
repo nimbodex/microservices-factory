@@ -46,7 +46,6 @@ func ToRepoPart(servicePart *model.Part) *repomodel.Part {
 
 // FromRepoPart converts repository model to service model
 func FromRepoPart(repoPart *repomodel.Part) (*model.Part, error) {
-	// Validate UUID format
 	_, err := uuid.Parse(repoPart.UUID)
 	if err != nil {
 		return nil, err

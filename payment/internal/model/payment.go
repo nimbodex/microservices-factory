@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// PaymentMethod represents payment method
 type PaymentMethod string
 
 const (
@@ -15,7 +14,6 @@ const (
 	PaymentMethodSBP     PaymentMethod = "SBP"
 )
 
-// PaymentStatus represents payment status
 type PaymentStatus string
 
 const (
@@ -25,7 +23,6 @@ const (
 	PaymentStatusCancelled PaymentStatus = "CANCELLED"
 )
 
-// Payment represents a payment in the service layer
 type Payment struct {
 	UUID            uuid.UUID     `json:"uuid"`
 	OrderUUID       uuid.UUID     `json:"order_uuid"`
@@ -37,7 +34,6 @@ type Payment struct {
 	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
-// PayOrderRequest represents request to pay an order
 type PayOrderRequest struct {
 	OrderUUID     uuid.UUID     `json:"order_uuid"`
 	PaymentMethod PaymentMethod `json:"payment_method"`

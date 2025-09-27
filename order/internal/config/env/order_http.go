@@ -20,22 +20,18 @@ func NewOrderHTTPConfig() *OrderHTTPConfig {
 	}
 }
 
-// Host возвращает хост HTTP сервера
 func (c *OrderHTTPConfig) Host() string {
 	return c.host
 }
 
-// Port возвращает порт HTTP сервера
 func (c *OrderHTTPConfig) Port() string {
 	return c.port
 }
 
-// ReadTimeout возвращает таймаут чтения HTTP запроса
 func (c *OrderHTTPConfig) ReadTimeout() string {
 	return c.readTimeout
 }
 
-// Address возвращает адрес для прослушивания HTTP сервера
 func (c *OrderHTTPConfig) Address() string {
 	return net.JoinHostPort(c.host, c.port)
 }

@@ -15,14 +15,12 @@ import (
 	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
-// App представляет основное приложение Payment сервиса
 type App struct {
 	config     *config.Config
 	logger     logger.Logger
 	grpcServer *grpc.Server
 }
 
-// New создает новое приложение с заданной конфигурацией
 func New(cfg *config.Config) *App {
 	return &App{
 		config: cfg,
@@ -32,17 +30,14 @@ func New(cfg *config.Config) *App {
 func (a *App) Run() error {
 	ctx := context.Background()
 
-	// Инициализируем логгер
 	if err := a.initLogger(); err != nil {
 		return fmt.Errorf("failed to init logger: %w", err)
 	}
 
-	// Инициализируем компоненты
 	if err := a.initComponents(ctx); err != nil {
 		return fmt.Errorf("failed to init components: %w", err)
 	}
 
-	// Настраиваем graceful shutdown
 	a.setupGracefulShutdown()
 
 	if err := a.startGRPCServer(); err != nil {
@@ -53,7 +48,6 @@ func (a *App) Run() error {
 	return nil
 }
 
-// loggerAdapter адаптирует logger.Logger для использования с closer
 type loggerAdapter struct {
 	logger logger.Logger
 }
@@ -74,7 +68,6 @@ func (l *loggerAdapter) Error(ctx context.Context, msg string, fields ...interfa
 	l.logger.Error(ctx, msg, zapFields...)
 }
 
-// initLogger инициализирует логгер
 func (a *App) initLogger() error {
 	err := logger.Init(a.config.Logger.Level(), a.config.Logger.AsJSON())
 	if err != nil {
@@ -86,14 +79,9 @@ func (a *App) initLogger() error {
 	return nil
 }
 
-// initComponents инициализирует все компоненты приложения
 func (a *App) initComponents(ctx context.Context) error {
-	// Инициализируем gRPC сервер
 	a.grpcServer = grpc.NewServer()
 
-	// Регистрируем сервисы
-	// Здесь должен быть регистрирован Payment сервис
-	// paymentv1.RegisterPaymentServiceServer(a.grpcServer, paymentService)
 	health.RegisterService(a.grpcServer)
 
 	return nil
@@ -117,14 +105,11 @@ func (a *App) startGRPCServer() error {
 	return nil
 }
 
-// setupGracefulShutdown настраивает graceful shutdown
 func (a *App) setupGracefulShutdown() {
-	// Регистрируем функции закрытия
 	closer.AddNamed("gRPC Server", func(ctx context.Context) error {
 		a.grpcServer.GracefulStop()
 		return nil
 	})
 
-	// Настраиваем обработку сигналов
 	closer.Configure(syscall.SIGTERM, syscall.SIGINT)
 }

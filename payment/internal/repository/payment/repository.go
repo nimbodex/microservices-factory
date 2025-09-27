@@ -23,7 +23,6 @@ func NewMemoryPaymentRepository() *MemoryPaymentRepository {
 	}
 }
 
-// Create creates a new payment
 func (r *MemoryPaymentRepository) Create(ctx context.Context, payment *model.Payment) error {
 	if payment == nil {
 		return fmt.Errorf("payment cannot be nil")
@@ -37,14 +36,12 @@ func (r *MemoryPaymentRepository) Create(ctx context.Context, payment *model.Pay
 		return fmt.Errorf("payment with UUID %s already exists", payment.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	paymentCopy := *payment
 	r.payments[paymentKey] = &paymentCopy
 
 	return nil
 }
 
-// GetByUUID retrieves a payment by its UUID
 func (r *MemoryPaymentRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*model.Payment, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -54,19 +51,16 @@ func (r *MemoryPaymentRepository) GetByUUID(ctx context.Context, uuid uuid.UUID)
 		return nil, fmt.Errorf("payment with UUID %s not found", uuid)
 	}
 
-	// Return a copy to avoid external modifications
 	paymentCopy := *payment
 	return &paymentCopy, nil
 }
 
-// GetByOrderUUID retrieves a payment by order UUID
 func (r *MemoryPaymentRepository) GetByOrderUUID(ctx context.Context, orderUUID uuid.UUID) (*model.Payment, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	for _, payment := range r.payments {
 		if payment.OrderUUID == orderUUID {
-			// Return a copy to avoid external modifications
 			paymentCopy := *payment
 			return &paymentCopy, nil
 		}
@@ -75,14 +69,12 @@ func (r *MemoryPaymentRepository) GetByOrderUUID(ctx context.Context, orderUUID 
 	return nil, fmt.Errorf("payment for order %s not found", orderUUID)
 }
 
-// GetByTransactionUUID retrieves a payment by transaction UUID
 func (r *MemoryPaymentRepository) GetByTransactionUUID(ctx context.Context, transactionUUID uuid.UUID) (*model.Payment, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	for _, payment := range r.payments {
 		if payment.TransactionUUID == transactionUUID {
-			// Return a copy to avoid external modifications
 			paymentCopy := *payment
 			return &paymentCopy, nil
 		}
@@ -91,7 +83,6 @@ func (r *MemoryPaymentRepository) GetByTransactionUUID(ctx context.Context, tran
 	return nil, fmt.Errorf("payment with transaction UUID %s not found", transactionUUID)
 }
 
-// Update updates an existing payment
 func (r *MemoryPaymentRepository) Update(ctx context.Context, payment *model.Payment) error {
 	if payment == nil {
 		return fmt.Errorf("payment cannot be nil")
@@ -105,14 +96,12 @@ func (r *MemoryPaymentRepository) Update(ctx context.Context, payment *model.Pay
 		return fmt.Errorf("payment with UUID %s not found", payment.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	paymentCopy := *payment
 	r.payments[paymentKey] = &paymentCopy
 
 	return nil
 }
 
-// Delete removes a payment by its UUID
 func (r *MemoryPaymentRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()

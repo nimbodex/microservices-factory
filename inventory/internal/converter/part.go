@@ -12,7 +12,6 @@ import (
 	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 
-// safeInt64ToInt32 safely converts int64 to int32 with overflow check
 func safeInt64ToInt32(value int64) (int32, error) {
 	if value > math.MaxInt32 || value < math.MinInt32 {
 		return 0, fmt.Errorf("integer overflow: value %d is out of int32 range", value)
@@ -27,7 +26,6 @@ func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
 		return nil, fmt.Errorf("protoPart cannot be nil")
 	}
 
-	// Validate UUID format
 	_, err := uuid.Parse(protoPart.Uuid)
 	if err != nil {
 		return nil, err
@@ -52,13 +50,11 @@ func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
 		}
 	}
 
-	// Convert metadata from structpb to interface{}
 	metadata := make(map[string]interface{})
 	for k, v := range protoPart.Metadata {
 		metadata[k] = v.AsInterface()
 	}
 
-	// Safely convert StockQuantity from int64 to int32
 	stockQuantity, err := safeInt64ToInt32(protoPart.StockQuantity)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert stock quantity: %w", err)
@@ -105,7 +101,6 @@ func ToProtoPart(servicePart *model.Part) *inventoryv1.Part {
 		}
 	}
 
-	// Convert metadata from interface{} to structpb
 	metadata := make(map[string]*structpb.Value)
 	if servicePart.Metadata != nil {
 		for k, v := range servicePart.Metadata {

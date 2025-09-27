@@ -27,37 +27,30 @@ func NewPostgresConfig() *PostgresConfig {
 	}
 }
 
-// Host возвращает хост PostgreSQL
 func (c *PostgresConfig) Host() string {
 	return c.host
 }
 
-// Port возвращает порт PostgreSQL
 func (c *PostgresConfig) Port() string {
 	return c.port
 }
 
-// User возвращает имя пользователя для подключения к PostgreSQL
 func (c *PostgresConfig) User() string {
 	return c.user
 }
 
-// Password возвращает пароль для подключения к PostgreSQL
 func (c *PostgresConfig) Password() string {
 	return c.password
 }
 
-// Database возвращает название базы данных
 func (c *PostgresConfig) Database() string {
 	return c.database
 }
 
-// SSLMode возвращает режим SSL
 func (c *PostgresConfig) SSLMode() string {
 	return c.sslMode
 }
 
-// URI возвращает строку подключения к PostgreSQL
 func (c *PostgresConfig) URI() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		url.QueryEscape(c.user),
