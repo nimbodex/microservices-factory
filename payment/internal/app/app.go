@@ -4,22 +4,21 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os"
 	"syscall"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/maxim/microservices-factory/payment/internal/config"
-	"github.com/maxim/microservices-factory/platform/pkg/closer"
-	"github.com/maxim/microservices-factory/platform/pkg/grpc/health"
-	"github.com/maxim/microservices-factory/platform/pkg/logger"
+	"github.com/nimbodex/microservices-factory/payment/internal/config"
+	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
 // App представляет основное приложение Payment сервиса
 type App struct {
 	config     *config.Config
-	logger     *logger.Logger
+	logger     logger.Logger
 	grpcServer *grpc.Server
 }
 
@@ -54,6 +53,27 @@ func (a *App) Run() error {
 	return nil
 }
 
+// loggerAdapter адаптирует logger.Logger для использования с closer
+type loggerAdapter struct {
+	logger logger.Logger
+}
+
+func (l *loggerAdapter) Info(ctx context.Context, msg string, fields ...interface{}) {
+	zapFields := make([]zap.Field, len(fields))
+	for i, field := range fields {
+		zapFields[i] = zap.Any("field", field)
+	}
+	l.logger.Info(ctx, msg, zapFields...)
+}
+
+func (l *loggerAdapter) Error(ctx context.Context, msg string, fields ...interface{}) {
+	zapFields := make([]zap.Field, len(fields))
+	for i, field := range fields {
+		zapFields[i] = zap.Any("field", field)
+	}
+	l.logger.Error(ctx, msg, zapFields...)
+}
+
 // initLogger инициализирует логгер
 func (a *App) initLogger() error {
 	err := logger.Init(a.config.Logger.Level(), a.config.Logger.AsJSON())
@@ -61,7 +81,8 @@ func (a *App) initLogger() error {
 		return fmt.Errorf("failed to initialize logger: %w", err)
 	}
 
-	a.logger = logger.Logger()
+	a.logger = logger.GetLogger()
+	closer.SetLogger(&loggerAdapter{logger: a.logger})
 	return nil
 }
 
@@ -106,11 +127,4 @@ func (a *App) setupGracefulShutdown() {
 
 	// Настраиваем обработку сигналов
 	closer.Configure(syscall.SIGTERM, syscall.SIGINT)
-
-	// Обработка сигнала завершения
-	go func() {
-		<-closer.Done()
-		a.logger.Info(context.Background(), "Application shutdown completed")
-		os.Exit(0)
-	}()
 }

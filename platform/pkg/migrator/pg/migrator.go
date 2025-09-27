@@ -45,7 +45,8 @@ func (m *Migrator) Force(version int) error {
 }
 
 func (m *Migrator) Version() (int, bool, error) {
-	return m.migrate.Version()
+	version, dirty, err := m.migrate.Version()
+	return int(version), dirty, err
 }
 
 func (m *Migrator) Close() error {

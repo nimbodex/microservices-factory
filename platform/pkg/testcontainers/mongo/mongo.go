@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -46,7 +47,7 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		return nil, fmt.Errorf("failed to get container host: %w", err)
 	}
 
-	port, err := container.MappedPort(ctx, cfg.Port)
+	port, err := container.MappedPort(ctx, nat.Port(cfg.Port))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mapped port: %w", err)
 	}

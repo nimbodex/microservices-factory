@@ -11,13 +11,13 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/maxim/microservices-factory/platform/pkg/closer"
-	"github.com/maxim/microservices-factory/platform/pkg/grpc/health"
-	"github.com/maxim/microservices-factory/platform/pkg/logger"
 	v1 "github.com/nimbodex/microservices-factory/inventory/internal/api/inventory/v1"
 	"github.com/nimbodex/microservices-factory/inventory/internal/config"
 	"github.com/nimbodex/microservices-factory/inventory/internal/repository"
 	"github.com/nimbodex/microservices-factory/inventory/internal/service"
+	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )
 

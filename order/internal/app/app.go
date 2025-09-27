@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"syscall"
 	"time"
 
@@ -15,16 +14,16 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/maxim/microservices-factory/order/internal/config"
-	"github.com/maxim/microservices-factory/platform/pkg/closer"
-	"github.com/maxim/microservices-factory/platform/pkg/grpc/health"
-	"github.com/maxim/microservices-factory/platform/pkg/logger"
+	"github.com/nimbodex/microservices-factory/order/internal/config"
+	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
 // App представляет основное приложение Order сервиса
 type App struct {
 	config     *config.Config
-	logger     *logger.Logger
+	logger     logger.Logger
 	db         *sql.DB
 	httpServer *http.Server
 	grpcServer *grpc.Server
@@ -62,13 +61,35 @@ func (a *App) Run() error {
 }
 
 // initLogger инициализирует логгер
+// loggerAdapter адаптирует logger.Logger для использования с closer
+type loggerAdapter struct {
+	logger logger.Logger
+}
+
+func (l *loggerAdapter) Info(ctx context.Context, msg string, fields ...interface{}) {
+	zapFields := make([]zap.Field, len(fields))
+	for i, field := range fields {
+		zapFields[i] = zap.Any("field", field)
+	}
+	l.logger.Info(ctx, msg, zapFields...)
+}
+
+func (l *loggerAdapter) Error(ctx context.Context, msg string, fields ...interface{}) {
+	zapFields := make([]zap.Field, len(fields))
+	for i, field := range fields {
+		zapFields[i] = zap.Any("field", field)
+	}
+	l.logger.Error(ctx, msg, zapFields...)
+}
+
 func (a *App) initLogger() error {
 	err := logger.Init(a.config.Logger.Level(), a.config.Logger.AsJSON())
 	if err != nil {
 		return fmt.Errorf("failed to initialize logger: %w", err)
 	}
 
-	a.logger = logger.Logger()
+	a.logger = logger.GetLogger()
+	closer.SetLogger(&loggerAdapter{logger: a.logger})
 	return nil
 }
 
@@ -178,12 +199,6 @@ func (a *App) setupGracefulShutdown() {
 	// Настраиваем обработку сигналов
 	closer.Configure(syscall.SIGTERM, syscall.SIGINT)
 
-	// Обработка сигнала завершения
-	go func() {
-		<-closer.Done()
-		a.logger.Info(context.Background(), "Application shutdown completed")
-		os.Exit(0)
-	}()
 }
 
 // parseDuration парсит строку в time.Duration

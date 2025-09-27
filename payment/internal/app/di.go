@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/maxim/microservices-factory/payment/internal/config"
+	"github.com/nimbodex/microservices-factory/payment/internal/config"
 )
 
 // Container представляет контейнер зависимостей

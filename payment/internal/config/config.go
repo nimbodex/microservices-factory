@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/maxim/microservices-factory/payment/internal/config/env"
+	"github.com/nimbodex/microservices-factory/payment/internal/config/env"
 )
 
 // Config представляет основную конфигурацию приложения Payment

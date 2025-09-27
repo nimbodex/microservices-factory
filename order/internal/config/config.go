@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/maxim/microservices-factory/order/internal/config/env"
+	"github.com/nimbodex/microservices-factory/order/internal/config/env"
 )
 
 // Config представляет основную конфигурацию приложения Order

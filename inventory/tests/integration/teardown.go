@@ -5,7 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/maxim/microservices-factory/platform/pkg/logger"
+	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
 func TeardownTestEnvironment(ctx context.Context, env *TestEnvironment) {

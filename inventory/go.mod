@@ -4,11 +4,11 @@ go 1.24
 
 replace github.com/nimbodex/microservices-factory/shared => ../shared
 
-replace github.com/maxim/microservices-factory/platform => ../platform
+replace github.com/nimbodex/microservices-factory/platform => ../platform
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/maxim/microservices-factory/platform v0.0.0-00010101000000-000000000000
+	github.com/nimbodex/microservices-factory/platform v0.0.0-00010101000000-000000000000
 	github.com/nimbodex/microservices-factory/shared v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.28.0

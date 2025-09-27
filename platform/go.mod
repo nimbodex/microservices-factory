@@ -1,4 +1,4 @@
-module github.com/maxim/microservices-factory/platform
+module github.com/nimbodex/microservices-factory/platform
 
 go 1.21
 
