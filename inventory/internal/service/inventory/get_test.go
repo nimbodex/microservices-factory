@@ -22,7 +22,7 @@ func (s *InventoryServiceTestSuite) TestGetPart_Success() {
 	}
 
 	expectedPart := &model.Part{
-		UUID:          partUUID,
+		UUID:          partUUID.String(),
 		Name:          "Test Part",
 		Description:   "Test Description",
 		Price:         100.0,

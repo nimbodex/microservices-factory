@@ -567,3 +567,95 @@ tasks:
 
         echo
         echo "🎉 Все тесты API успешно выполнены!"
+
+  # Environment management
+  env:generate:
+    desc: Generate .env files from templates
+    cmds:
+      - chmod +x deploy/env/generate-env.sh
+      - ./deploy/env/generate-env.sh
+
+  # Integration tests
+  test:integration:
+    desc: "Запускает интеграционные тесты для всех модулей"
+    deps: [env:generate]
+    cmds:
+      - |
+        echo "🧪 Запуск интеграционных тестов..."
+        ERR=0
+        for mod in {{.MODULES}}; do
+          if [ -d "$mod" ]; then
+            echo "🧪 Проверка модуля $mod на наличие интеграционных тестов"
+            if find $mod -name "*_test.go" -exec grep -l "//go:build integration" {} \; | grep -q .; then
+              echo "▶️ Запуск интеграционных тестов для $mod"
+              go test -tags=integration ./$mod/... || ERR=1
+            else
+              echo "⚠️ Модуль $mod не содержит интеграционных тестов (с тегом integration), пропускаем"
+            fi
+          fi
+        done
+        exit $ERR
+
+  # Docker operations
+  up:core:
+    desc: Start core services (databases)
+    run: docker-compose -f deploy/compose/core/docker-compose.yml up -d
+
+  down:core:
+    desc: Stop core services
+    run: docker-compose -f deploy/compose/core/docker-compose.yml down
+
+  up:inventory:
+    desc: Start inventory service
+    deps: [up:core]
+    run: docker-compose -f deploy/compose/inventory/docker-compose.yml up -d
+
+  down:inventory:
+    desc: Stop inventory service
+    run: docker-compose -f deploy/compose/inventory/docker-compose.yml down
+
+  up:order:
+    desc: Start order service
+    deps: [up:core]
+    run: docker-compose -f deploy/compose/order/docker-compose.yml up -d
+
+  down:order:
+    desc: Stop order service
+    run: docker-compose -f deploy/compose/order/docker-compose.yml down
+
+  up:payment:
+    desc: Start payment service
+    run: docker-compose -f deploy/compose/payment/docker-compose.yml up -d
+
+  down:payment:
+    desc: Stop payment service
+    run: docker-compose -f deploy/compose/payment/docker-compose.yml down
+
+  up:all:
+    desc: Start all services
+    deps: [up:core, up:inventory, up:order, up:payment]
+
+  down:all:
+    desc: Stop all services
+    run: |
+      docker-compose -f deploy/compose/inventory/docker-compose.yml down
+      docker-compose -f deploy/compose/order/docker-compose.yml down
+      docker-compose -f deploy/compose/payment/docker-compose.yml down
+      docker-compose -f deploy/compose/core/docker-compose.yml down
+
+  # Build
+  build:
+    desc: Build all services
+    run: |
+      mkdir -p bin
+      cd inventory && go build -o ../bin/inventory-server ./cmd/server
+      cd ../order && go build -o ../bin/order-server ./cmd/server
+      cd ../payment && go build -o ../bin/payment-server ./cmd/server
+
+  # Cleanup
+  clean:
+    desc: Clean build artifacts
+    run: |
+      rm -rf bin/
+      go clean -cache
+      docker system prune -f

@@ -78,7 +78,7 @@ func (r *MemoryPartRepository) Create(ctx context.Context, part *model.Part) err
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	partKey := part.UUID.String()
+	partKey := part.UUID
 	if _, exists := r.parts[partKey]; exists {
 		return fmt.Errorf("part with UUID %s already exists", part.UUID)
 	}
@@ -99,7 +99,7 @@ func (r *MemoryPartRepository) Update(ctx context.Context, part *model.Part) err
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	partKey := part.UUID.String()
+	partKey := part.UUID
 	if _, exists := r.parts[partKey]; !exists {
 		return fmt.Errorf("part with UUID %s not found", part.UUID)
 	}
@@ -151,7 +151,7 @@ func matchesUUIDs(part *model.Part, uuids []string) bool {
 	}
 
 	for _, uuid := range uuids {
-		if part.UUID.String() == uuid {
+		if part.UUID == uuid {
 			return true
 		}
 	}
@@ -221,7 +221,7 @@ func (r *MemoryPartRepository) initSampleData() {
 
 	parts := []*model.Part{
 		{
-			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
+			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440001").String(),
 			Name:          "Quantum Drive Engine",
 			Description:   "High-efficiency quantum propulsion system for long-distance space travel",
 			Price:         1500000.50,
@@ -248,7 +248,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			UpdatedAt: now,
 		},
 		{
-			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440002"),
+			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440002").String(),
 			Name:          "Liquid Hydrogen Fuel Cell",
 			Description:   "Clean-burning hydrogen fuel for environmental sustainability",
 			Price:         25000.75,
@@ -275,7 +275,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			UpdatedAt: now,
 		},
 		{
-			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440003"),
+			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440003").String(),
 			Name:          "Reinforced Observation Porthole",
 			Description:   "Ultra-strong transparent aluminum porthole for safe space observation",
 			Price:         75000.00,
@@ -302,7 +302,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			UpdatedAt: now,
 		},
 		{
-			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440004"),
+			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440004").String(),
 			Name:          "Adaptive Solar Wing",
 			Description:   "Self-adjusting solar panel wing for maximum energy efficiency",
 			Price:         850000.25,
@@ -329,7 +329,7 @@ func (r *MemoryPartRepository) initSampleData() {
 			UpdatedAt: now,
 		},
 		{
-			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440005"),
+			UUID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440005").String(),
 			Name:          "Unknown Component XJ-2024",
 			Description:   "Mysterious component found in deep space wreckage",
 			Price:         999999.99,
@@ -358,6 +358,6 @@ func (r *MemoryPartRepository) initSampleData() {
 	}
 
 	for _, part := range parts {
-		r.parts[part.UUID.String()] = part
+		r.parts[part.UUID] = part
 	}
 }

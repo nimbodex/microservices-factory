@@ -2,49 +2,82 @@ name: CI
 
 on:
   push:
+    branches: [ main, develop ]
   pull_request:
+    branches: [ main, develop ]
 
 jobs:
-  extract-vars:
-    name: Extract Variables from Taskfile
-    runs-on: ubuntu-latest
-    outputs:
-      go-version: ${{ steps.extract.outputs.GO_VERSION }}
-      golangci-lint-version: ${{ steps.extract.outputs.GOLANGCI_LINT_VERSION }}
-      modules: ${{ steps.extract.outputs.MODULES }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
-
-      - name: Extract variables from Taskfile
-        id: extract
-        run: |
-          chmod +x .github/scripts/extract-versions.sh
-          .github/scripts/extract-versions.sh
-
   lint:
-    needs: extract-vars
-    uses: ./.github/workflows/lint-reusable.yml
-    with:
-      modules: ${{ needs.extract-vars.outputs.modules }}
-      go-version: ${{ needs.extract-vars.outputs.go-version }}
-      golangci-lint-version: ${{ needs.extract-vars.outputs.golangci-lint-version }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Run linter
+      run: task lint
 
   test:
-    uses: ./.github/workflows/test-reusable.yml
-    needs: lint
-    with:
-      modules: ${{ needs.extract-vars.outputs.modules }}
-      go-version: ${{ needs.extract-vars.outputs.go-version }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Generate environment files
+      run: task env:generate
+    
+    - name: Run unit tests
+      run: task test
 
-  coverage:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/test-coverage-reusable.yml
-    needs: test
-    with:
-      modules: ${{ needs.extract-vars.outputs.modules }}
-      go-version: ${{ needs.extract-vars.outputs.go-version }}
-      gist-id: "bf33a2bda0693f1162c4323702033d27"
-    secrets:
-      GIST_SECRET: ${{ secrets.GIST_SECRET }}
+  test-integration:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Generate environment files
+      run: task env:generate
+    
+    - name: Run integration tests
+      run: task test:integration
+      env:
+        DOCKER_HOST: tcp://localhost:2376
+        DOCKER_TLS_VERIFY: 1
+        DOCKER_CERT_PATH: /certs/client
+
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Generate environment files
+      run: task env:generate
+    
+    - name: Run tests with coverage
+      run: task test-coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/total.out
+        flags: unittests
+        name: codecov-umbrella

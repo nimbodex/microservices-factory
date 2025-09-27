@@ -27,7 +27,8 @@ func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
 		return nil, fmt.Errorf("protoPart cannot be nil")
 	}
 
-	partUUID, err := uuid.Parse(protoPart.Uuid)
+	// Validate UUID format
+	_, err := uuid.Parse(protoPart.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func ToServicePart(protoPart *inventoryv1.Part) (*model.Part, error) {
 	}
 
 	return &model.Part{
-		UUID:          partUUID,
+		UUID:          protoPart.Uuid,
 		Name:          protoPart.Name,
 		Description:   protoPart.Description,
 		Price:         protoPart.Price,
@@ -115,7 +116,7 @@ func ToProtoPart(servicePart *model.Part) *inventoryv1.Part {
 	}
 
 	return &inventoryv1.Part{
-		Uuid:          servicePart.UUID.String(),
+		Uuid:          servicePart.UUID,
 		Name:          servicePart.Name,
 		Description:   servicePart.Description,
 		Price:         servicePart.Price,
