@@ -61,7 +61,6 @@ func NewGRPCPaymentClient() (*GRPCPaymentClient, error) {
 	}, nil
 }
 
-// GetPart retrieves a part by UUID from inventory service
 func (c *GRPCInventoryClient) GetPart(ctx context.Context, partUUID uuid.UUID) (*client.Part, error) {
 	resp, err := c.client.GetPart(ctx, &inventoryv1.GetPartRequest{
 		Uuid: partUUID.String(),
@@ -77,7 +76,6 @@ func (c *GRPCInventoryClient) GetPart(ctx context.Context, partUUID uuid.UUID) (
 	}, nil
 }
 
-// ListParts retrieves a list of parts from inventory service
 func (c *GRPCInventoryClient) ListParts(ctx context.Context, limit, offset int) ([]*client.Part, error) {
 	resp, err := c.client.ListParts(ctx, &inventoryv1.ListPartsRequest{
 		Filter: &inventoryv1.PartsFilter{},
@@ -104,7 +102,6 @@ func (c *GRPCInventoryClient) ListParts(ctx context.Context, limit, offset int) 
 	return parts, nil
 }
 
-// PayOrder processes payment for an order
 func (c *GRPCPaymentClient) PayOrder(ctx context.Context, orderUUID uuid.UUID, paymentMethod client.PaymentMethod) (*client.PaymentResult, error) {
 	var grpcPaymentMethod paymentv1.PaymentMethod
 	switch paymentMethod {
@@ -135,7 +132,6 @@ func (c *GRPCPaymentClient) PayOrder(ctx context.Context, orderUUID uuid.UUID, p
 	}, nil
 }
 
-// Close closes the gRPC connection
 func (c *GRPCInventoryClient) Close() error {
 	if c.conn != nil {
 		return c.conn.Close()
@@ -143,7 +139,6 @@ func (c *GRPCInventoryClient) Close() error {
 	return nil
 }
 
-// Close closes the gRPC connection
 func (c *GRPCPaymentClient) Close() error {
 	if c.conn != nil {
 		return c.conn.Close()

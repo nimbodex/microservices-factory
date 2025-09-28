@@ -23,7 +23,6 @@ func NewMemoryOrderRepository() *MemoryOrderRepository {
 	}
 }
 
-// Create creates a new order in the repository
 func (r *MemoryOrderRepository) Create(ctx context.Context, order *model.Order) error {
 	if order == nil {
 		return fmt.Errorf("order cannot be nil")
@@ -37,14 +36,12 @@ func (r *MemoryOrderRepository) Create(ctx context.Context, order *model.Order) 
 		return fmt.Errorf("order with UUID %s already exists", order.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	orderCopy := *order
 	r.orders[orderKey] = &orderCopy
 
 	return nil
 }
 
-// GetByUUID retrieves an order by its UUID
 func (r *MemoryOrderRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*model.Order, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -54,12 +51,10 @@ func (r *MemoryOrderRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (
 		return nil, fmt.Errorf("order with UUID %s not found", uuid)
 	}
 
-	// Return a copy to avoid external modifications
 	orderCopy := *order
 	return &orderCopy, nil
 }
 
-// Update updates an existing order
 func (r *MemoryOrderRepository) Update(ctx context.Context, order *model.Order) error {
 	if order == nil {
 		return fmt.Errorf("order cannot be nil")
@@ -73,14 +68,12 @@ func (r *MemoryOrderRepository) Update(ctx context.Context, order *model.Order) 
 		return fmt.Errorf("order with UUID %s not found", order.UUID)
 	}
 
-	// Create a copy to avoid external modifications
 	orderCopy := *order
 	r.orders[orderKey] = &orderCopy
 
 	return nil
 }
 
-// Delete removes an order by its UUID
 func (r *MemoryOrderRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -94,7 +87,6 @@ func (r *MemoryOrderRepository) Delete(ctx context.Context, uuid uuid.UUID) erro
 	return nil
 }
 
-// List retrieves orders with pagination
 func (r *MemoryOrderRepository) List(ctx context.Context, limit, offset int) ([]*model.Order, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -104,7 +96,6 @@ func (r *MemoryOrderRepository) List(ctx context.Context, limit, offset int) ([]
 		orders = append(orders, order)
 	}
 
-	// Simple pagination (in real implementation, you'd want to sort by created_at desc)
 	start := offset
 	end := offset + limit
 
@@ -116,7 +107,6 @@ func (r *MemoryOrderRepository) List(ctx context.Context, limit, offset int) ([]
 		end = len(orders)
 	}
 
-	// Return copies to avoid external modifications
 	result := make([]*model.Order, end-start)
 	for i, order := range orders[start:end] {
 		orderCopy := *order

@@ -16,7 +16,6 @@ func (e *ServiceError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
 
-// Common service error codes
 const (
 	ErrCodePartNotFound    = "PART_NOT_FOUND"
 	ErrCodeInvalidUUID     = "INVALID_UUID"

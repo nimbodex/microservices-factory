@@ -16,7 +16,6 @@ func (e *ServiceError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
 
-// Common service error codes
 const (
 	ErrCodePaymentNotFound      = "PAYMENT_NOT_FOUND"
 	ErrCodeInvalidPaymentMethod = "INVALID_PAYMENT_METHOD"

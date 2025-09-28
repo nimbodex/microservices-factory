@@ -20,12 +20,10 @@ func NewAPIHandler(inventoryService service.InventoryService) *APIHandler {
 	}
 }
 
-// GetPart handles GetPart gRPC requests
 func (h *APIHandler) GetPart(ctx context.Context, req *inventoryv1.GetPartRequest) (*inventoryv1.GetPartResponse, error) {
 	return h.inventoryService.GetPart(ctx, req)
 }
 
-// ListParts handles ListParts gRPC requests
 func (h *APIHandler) ListParts(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
 	return h.inventoryService.ListParts(ctx, req)
 }

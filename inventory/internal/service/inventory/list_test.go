@@ -24,7 +24,7 @@ func (s *InventoryServiceTestSuite) TestListParts_Success() {
 
 	expectedParts := []*model.Part{
 		{
-			UUID:          uuid.New(),
+			UUID:          uuid.New().String(),
 			Name:          "Engine Part 1",
 			Description:   "Engine Description 1",
 			Price:         100.0,
@@ -34,7 +34,7 @@ func (s *InventoryServiceTestSuite) TestListParts_Success() {
 			UpdatedAt:     time.Now(),
 		},
 		{
-			UUID:          uuid.New(),
+			UUID:          uuid.New().String(),
 			Name:          "Engine Part 2",
 			Description:   "Engine Description 2",
 			Price:         200.0,
@@ -72,7 +72,7 @@ func (s *InventoryServiceTestSuite) TestListParts_EmptyFilter() {
 
 	expectedParts := []*model.Part{
 		{
-			UUID:          uuid.New(),
+			UUID:          uuid.New().String(),
 			Name:          "Part 1",
 			Description:   "Description 1",
 			Price:         100.0,
