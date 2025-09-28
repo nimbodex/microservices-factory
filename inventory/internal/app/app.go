@@ -16,7 +16,7 @@ import (
 	"github.com/nimbodex/microservices-factory/inventory/internal/repository"
 	"github.com/nimbodex/microservices-factory/inventory/internal/service"
 	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
-	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health" //nolint
 	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 	inventoryv1 "github.com/nimbodex/microservices-factory/shared/pkg/proto/inventory/v1"
 )

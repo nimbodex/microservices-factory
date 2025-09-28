@@ -13,11 +13,9 @@ type Migrator interface {
 }
 
 type migrator struct {
-	db      *sql.DB
-	source  Source
-	table   string
-	version int
-	dirty   bool
+	db     *sql.DB
+	source Source
+	table  string
 }
 
 type Source interface {

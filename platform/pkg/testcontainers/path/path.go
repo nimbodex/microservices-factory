@@ -12,10 +12,7 @@ func FindProjectRoot() (string, error) {
 		return "", err
 	}
 
-	for {
-		if dir == "/" || dir == "" {
-			break
-		}
+	for dir != "/" && dir != "" {
 
 		if _, err := os.Stat(filepath.Join(dir, "go.work")); err == nil {
 			return dir, nil

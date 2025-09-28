@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -27,7 +28,7 @@ func (r *MongoPartRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*m
 	var part model.Part
 	err := r.collection.FindOne(ctx, bson.M{"uuid": uuid.String()}).Decode(&part)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, fmt.Errorf("part with UUID %s not found", uuid)
 		}
 		return nil, fmt.Errorf("failed to get part: %w", err)
@@ -61,7 +62,9 @@ func (r *MongoPartRepository) List(ctx context.Context, filter *model.PartsFilte
 	if err != nil {
 		return nil, fmt.Errorf("failed to find parts: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		_ = cursor.Close(ctx) //nolint:gosec
+	}()
 
 	if err = cursor.All(ctx, &parts); err != nil {
 		return nil, fmt.Errorf("failed to decode parts: %w", err)

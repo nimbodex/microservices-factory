@@ -11,7 +11,7 @@ import (
 
 	"github.com/nimbodex/microservices-factory/payment/internal/config"
 	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
-	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health" //nolint
 	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
@@ -34,9 +34,7 @@ func (a *App) Run() error {
 		return fmt.Errorf("failed to init logger: %w", err)
 	}
 
-	if err := a.initComponents(ctx); err != nil {
-		return fmt.Errorf("failed to init components: %w", err)
-	}
+	a.initComponents()
 
 	a.setupGracefulShutdown()
 
@@ -79,12 +77,10 @@ func (a *App) initLogger() error {
 	return nil
 }
 
-func (a *App) initComponents(ctx context.Context) error {
+func (a *App) initComponents() {
 	a.grpcServer = grpc.NewServer()
 
 	health.RegisterService(a.grpcServer)
-
-	return nil
 }
 
 func (a *App) startGRPCServer() error {

@@ -2,13 +2,12 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
 	"syscall"
 	"time"
-
-	"database/sql"
 
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
@@ -16,7 +15,7 @@ import (
 
 	"github.com/nimbodex/microservices-factory/order/internal/config"
 	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
-	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health"
+	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health" //nolint
 	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
 )
 
@@ -47,9 +46,7 @@ func (a *App) Run() error {
 
 	a.setupGracefulShutdown()
 
-	if err := a.startServers(); err != nil {
-		return fmt.Errorf("failed to start servers: %w", err)
-	}
+	a.startServers()
 
 	a.logger.Info(ctx, "Order service started successfully")
 	return nil
@@ -124,7 +121,7 @@ func (a *App) initPostgreSQL(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) startServers() error {
+func (a *App) startServers() {
 	go func() {
 		a.logger.Info(context.Background(), "HTTP server starting",
 			zap.String("address", a.config.OrderHTTP.Address()))
@@ -135,7 +132,7 @@ func (a *App) startServers() error {
 	}()
 
 	go func() {
-		lis, err := net.Listen("tcp", ":50052")
+		lis, err := net.Listen("tcp", "localhost:50052")
 		if err != nil {
 			a.logger.Error(context.Background(), "Failed to listen for gRPC", zap.Error(err))
 			return
@@ -148,8 +145,6 @@ func (a *App) startServers() error {
 			a.logger.Error(context.Background(), "gRPC server failed", zap.Error(err))
 		}
 	}()
-
-	return nil
 }
 
 func (a *App) createHTTPHandler() http.Handler {
@@ -157,7 +152,7 @@ func (a *App) createHTTPHandler() http.Handler {
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK")) //nolint:gosec
 	})
 
 	return mux
@@ -181,7 +176,6 @@ func (a *App) setupGracefulShutdown() {
 	})
 
 	closer.Configure(syscall.SIGTERM, syscall.SIGINT)
-
 }
 
 func parseDuration(s string) time.Duration {

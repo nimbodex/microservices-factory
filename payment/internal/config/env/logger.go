@@ -15,7 +15,10 @@ type LoggerConfig struct {
 func NewLoggerConfig() *LoggerConfig {
 	level := getEnvOrDefault("LOGGER_LEVEL", "info")
 	asJSONStr := getEnvOrDefault("LOGGER_AS_JSON", "false")
-	asJSON, _ := strconv.ParseBool(asJSONStr)
+	asJSON, err := strconv.ParseBool(asJSONStr)
+	if err != nil {
+		asJSON = false
+	}
 
 	return &LoggerConfig{
 		level:  level,

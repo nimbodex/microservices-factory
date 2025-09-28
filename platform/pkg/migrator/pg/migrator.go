@@ -46,6 +46,12 @@ func (m *Migrator) Force(version int) error {
 
 func (m *Migrator) Version() (int, bool, error) {
 	version, dirty, err := m.migrate.Version()
+	if err != nil {
+		return 0, dirty, err
+	}
+	if version > 0x7FFFFFFF {
+		return 0x7FFFFFFF, dirty, err
+	}
 	return int(version), dirty, err
 }
 

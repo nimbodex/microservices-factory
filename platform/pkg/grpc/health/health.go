@@ -6,8 +6,8 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-
 	grpchealth "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
 )
 
 type HealthChecker struct {
@@ -49,17 +49,17 @@ func (h *HealthChecker) Watch(req *grpchealth.HealthCheckRequest, stream grpchea
 	serviceName := req.GetService()
 
 	h.mu.RLock()
-	status, exists := h.services[serviceName]
+	currentStatus, exists := h.services[serviceName]
 	h.mu.RUnlock()
 
 	if !exists && serviceName != "" {
-		status = grpchealth.HealthCheckResponse_SERVICE_UNKNOWN
+		currentStatus = grpchealth.HealthCheckResponse_SERVICE_UNKNOWN
 	} else if !exists {
-		status = grpchealth.HealthCheckResponse_SERVING
+		currentStatus = grpchealth.HealthCheckResponse_SERVING
 	}
 
 	resp := &grpchealth.HealthCheckResponse{
-		Status: status,
+		Status: currentStatus,
 	}
 
 	if err := stream.Send(resp); err != nil {
@@ -67,17 +67,17 @@ func (h *HealthChecker) Watch(req *grpchealth.HealthCheckRequest, stream grpchea
 	}
 
 	ch := make(chan grpchealth.HealthCheckResponse_ServingStatus, 1)
-	ch <- status
+	ch <- currentStatus
 
 	for {
 		select {
 		case <-stream.Context().Done():
-			return grpc.Errorf(codes.Canceled, "stream has ended")
+			return status.Errorf(codes.Canceled, "stream has ended")
 		case newStatus := <-ch:
-			if newStatus != status {
-				status = newStatus
+			if newStatus != currentStatus {
+				currentStatus = newStatus
 				resp := &grpchealth.HealthCheckResponse{
-					Status: status,
+					Status: currentStatus,
 				}
 				if err := stream.Send(resp); err != nil {
 					return err
