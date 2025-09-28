@@ -9,22 +9,34 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/IBM/sarama"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/nimbodex/microservices-factory/order/internal/config"
+	"github.com/nimbodex/microservices-factory/order/internal/service/consumer/order_consumer"
+	"github.com/nimbodex/microservices-factory/order/internal/service/producer/order_producer"
 	"github.com/nimbodex/microservices-factory/platform/pkg/closer"
 	"github.com/nimbodex/microservices-factory/platform/pkg/grpc/health" //nolint
+	"github.com/nimbodex/microservices-factory/platform/pkg/kafka/consumer"
+	"github.com/nimbodex/microservices-factory/platform/pkg/kafka/producer"
 	"github.com/nimbodex/microservices-factory/platform/pkg/logger"
+	"github.com/nimbodex/microservices-factory/platform/pkg/middleware/kafka"
 )
 
 type App struct {
-	config     *config.Config
-	logger     logger.Logger
-	db         *sql.DB
-	httpServer *http.Server
-	grpcServer *grpc.Server
+	config        *config.Config
+	logger        logger.Logger
+	db            *sql.DB
+	httpServer    *http.Server
+	grpcServer    *grpc.Server
+	kafkaConsumer consumer.Consumer
+	kafkaProducer producer.Producer
+	consumerGroup sarama.ConsumerGroup
+	syncProducer  sarama.SyncProducer
+	orderProducer *order_producer.ProducerService
+	orderConsumer *order_consumer.ConsumerService
 }
 
 func New(cfg *config.Config) *App {
@@ -88,6 +100,10 @@ func (a *App) initComponents(ctx context.Context) error {
 		return fmt.Errorf("failed to init PostgreSQL: %w", err)
 	}
 
+	if err := a.initKafka(ctx); err != nil {
+		return fmt.Errorf("failed to init Kafka: %w", err)
+	}
+
 	a.grpcServer = grpc.NewServer()
 	health.RegisterService(a.grpcServer)
 
@@ -121,6 +137,57 @@ func (a *App) initPostgreSQL(ctx context.Context) error {
 	return nil
 }
 
+func (a *App) initKafka(ctx context.Context) error {
+	// Создаем Kafka consumer group
+	consumerConfig := sarama.NewConfig()
+	consumerConfig.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	consumerConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
+
+	consumerGroup, err := sarama.NewConsumerGroup(a.config.OrderAssembledConsumer.GetBrokers(), a.config.OrderAssembledConsumer.GetGroupID(), consumerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create consumer group: %w", err)
+	}
+
+	// Создаем Kafka producer
+	producerConfig := sarama.NewConfig()
+	producerConfig.Producer.RequiredAcks = sarama.WaitForAll
+	producerConfig.Producer.Retry.Max = 3
+	producerConfig.Producer.Return.Successes = true
+
+	syncProducer, err := sarama.NewSyncProducer(a.config.OrderPaidProducer.GetBrokers(), producerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create sync producer: %w", err)
+	}
+
+	// Создаем Kafka consumer
+	kafkaConsumer := consumer.NewConsumer(
+		consumerGroup,
+		a.config.OrderAssembledConsumer.GetTopics(),
+		a.logger,
+		kafka.Logging(a.logger),
+	)
+
+	// Создаем Kafka producer
+	kafkaProducer := producer.NewProducer(
+		syncProducer,
+		a.config.OrderPaidProducer.GetTopic(),
+		a.logger,
+	)
+
+	// Создаем сервисы
+	a.orderProducer = order_producer.NewProducerService(kafkaProducer, a.logger)
+	a.orderConsumer = order_consumer.NewConsumerService(a.logger, nil) // TODO: добавить orderRepo
+
+	// Сохраняем ссылки
+	a.kafkaConsumer = kafkaConsumer
+	a.kafkaProducer = kafkaProducer
+	a.consumerGroup = consumerGroup
+	a.syncProducer = syncProducer
+
+	a.logger.Info(ctx, "Kafka initialized successfully")
+	return nil
+}
+
 func (a *App) startServers() {
 	go func() {
 		a.logger.Info(context.Background(), "HTTP server starting",
@@ -143,6 +210,14 @@ func (a *App) startServers() {
 
 		if err := a.grpcServer.Serve(lis); err != nil {
 			a.logger.Error(context.Background(), "gRPC server failed", zap.Error(err))
+		}
+	}()
+
+	// Запускаем Kafka consumer
+	go func() {
+		a.logger.Info(context.Background(), "Kafka consumer starting")
+		if err := a.kafkaConsumer.Consume(ctx, a.orderConsumer.Handle); err != nil {
+			a.logger.Error(context.Background(), "Kafka consumer error", zap.Error(err))
 		}
 	}()
 }
@@ -171,6 +246,20 @@ func (a *App) setupGracefulShutdown() {
 	closer.AddNamed("PostgreSQL", func(ctx context.Context) error {
 		if a.db != nil {
 			return a.db.Close()
+		}
+		return nil
+	})
+
+	closer.AddNamed("Kafka Consumer Group", func(ctx context.Context) error {
+		if a.consumerGroup != nil {
+			return a.consumerGroup.Close()
+		}
+		return nil
+	})
+
+	closer.AddNamed("Kafka Producer", func(ctx context.Context) error {
+		if a.syncProducer != nil {
+			return a.syncProducer.Close()
 		}
 		return nil
 	})

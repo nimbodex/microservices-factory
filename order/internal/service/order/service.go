@@ -20,6 +20,12 @@ type OrderServiceImpl struct {
 	orderRepo       repository.OrderRepository
 	inventoryClient client.InventoryClient
 	paymentClient   client.PaymentClient
+	orderProducer   OrderProducerService
+}
+
+// OrderProducerService интерфейс для отправки событий
+type OrderProducerService interface {
+	SendOrderPaid(ctx context.Context, event *model.OrderPaidEvent) error
 }
 
 // NewOrderService creates a new order service instance
@@ -27,11 +33,13 @@ func NewOrderService(
 	orderRepo repository.OrderRepository,
 	inventoryClient client.InventoryClient,
 	paymentClient client.PaymentClient,
+	orderProducer OrderProducerService,
 ) *OrderServiceImpl {
 	return &OrderServiceImpl{
 		orderRepo:       orderRepo,
 		inventoryClient: inventoryClient,
 		paymentClient:   paymentClient,
+		orderProducer:   orderProducer,
 	}
 }
 
@@ -146,6 +154,22 @@ func (s *OrderServiceImpl) PayOrder(ctx context.Context, req *orderv1.PayOrderRe
 	}
 
 	log.Printf("Payment successful for order %s, transaction: %s", params.OrderUUID, transactionUUID)
+
+	// Отправляем событие OrderPaid
+	if s.orderProducer != nil {
+		event := &model.OrderPaidEvent{
+			EventUUID:       uuid.New().String(),
+			OrderUUID:       params.OrderUUID.String(),
+			UserUUID:        order.UserUUID.String(),
+			PaymentMethod:   string(req.PaymentMethod),
+			TransactionUUID: transactionUUID.String(),
+		}
+
+		if err := s.orderProducer.SendOrderPaid(ctx, event); err != nil {
+			log.Printf("Failed to send OrderPaid event for order %s: %v", params.OrderUUID, err)
+			// Не возвращаем ошибку, так как оплата уже прошла успешно
+		}
+	}
 
 	return converter.ToPayOrderResponse(transactionUUID), nil
 }

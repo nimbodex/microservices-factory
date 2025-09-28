@@ -38,3 +38,21 @@ type PaymentGRPCConfig interface {
 	Port() string
 	Address() string
 }
+
+// KafkaConfig интерфейс для конфигурации Kafka
+type KafkaConfig interface {
+	GetBrokers() []string
+}
+
+// OrderPaidProducerConfig конфигурация для producer OrderPaid
+type OrderPaidProducerConfig interface {
+	GetBrokers() []string
+	GetTopic() string
+}
+
+// OrderAssembledConsumerConfig конфигурация для consumer OrderAssembled
+type OrderAssembledConsumerConfig interface {
+	GetBrokers() []string
+	GetGroupID() string
+	GetTopics() []string
+}
