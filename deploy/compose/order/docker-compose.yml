@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  order:
+    build:
+      context: ../../../
+      dockerfile: deploy/docker/order/Dockerfile
+    container_name: microservices-order
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-console}
+      ORDER_HTTP_ADDRESS: ${ORDER_HTTP_ADDRESS:-:8080}
+      ORDER_HTTP_READ_TIMEOUT: ${ORDER_HTTP_READ_TIMEOUT:-30s}
+      ORDER_HTTP_WRITE_TIMEOUT: ${ORDER_HTTP_WRITE_TIMEOUT:-30s}
+      ORDER_HTTP_IDLE_TIMEOUT: ${ORDER_HTTP_IDLE_TIMEOUT:-120s}
+      ORDER_POSTGRES_DSN: ${ORDER_POSTGRES_DSN:-postgres://postgres:postgres@postgres:5432/orders?sslmode=disable}
+      ORDER_POSTGRES_MAX_OPEN_CONNS: ${ORDER_POSTGRES_MAX_OPEN_CONNS:-25}
+      ORDER_POSTGRES_MAX_IDLE_CONNS: ${ORDER_POSTGRES_MAX_IDLE_CONNS:-25}
+      ORDER_POSTGRES_CONN_MAX_LIFETIME: ${ORDER_POSTGRES_CONN_MAX_LIFETIME:-5m}
+      ORDER_INVENTORY_GRPC_ADDRESS: ${ORDER_INVENTORY_GRPC_ADDRESS:-inventory:50051}
+      ORDER_PAYMENT_GRPC_ADDRESS: ${ORDER_PAYMENT_GRPC_ADDRESS:-payment:50053}
+    ports:
+      - "${ORDER_HTTP_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network
+    env_file:
+      - ../../../order/.env
+
+  postgres:
+    image: postgres:15
+    container_name: order-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DATABASE:-orders}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+volumes:
+  postgres_data:
+
+networks:
+  microservices-network:
+    external: true

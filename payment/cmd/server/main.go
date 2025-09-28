@@ -27,13 +27,10 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	// Initialize repository
 	paymentRepo := payment.NewMemoryPaymentRepository()
 
-	// Initialize service layer
 	paymentService := paymentservice.NewPaymentService(paymentRepo)
 
-	// Initialize API handler
 	apiHandler := v1.NewAPIHandler(paymentService)
 
 	paymentv1.RegisterPaymentServiceServer(grpcServer, apiHandler)

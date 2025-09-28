@@ -16,7 +16,6 @@ func (e *ServiceError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
 
-// Common service error codes
 const (
 	ErrCodeOrderNotFound      = "ORDER_NOT_FOUND"
 	ErrCodeInvalidStatus      = "INVALID_STATUS"

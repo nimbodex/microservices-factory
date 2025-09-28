@@ -20,6 +20,12 @@ type OrderServiceImpl struct {
 	orderRepo       repository.OrderRepository
 	inventoryClient client.InventoryClient
 	paymentClient   client.PaymentClient
+	orderProducer   OrderProducerService
+}
+
+// OrderProducerService интерфейс для отправки событий
+type OrderProducerService interface {
+	SendOrderPaid(ctx context.Context, event *model.OrderPaidEvent) error
 }
 
 // NewOrderService creates a new order service instance
@@ -27,15 +33,16 @@ func NewOrderService(
 	orderRepo repository.OrderRepository,
 	inventoryClient client.InventoryClient,
 	paymentClient client.PaymentClient,
+	orderProducer OrderProducerService,
 ) *OrderServiceImpl {
 	return &OrderServiceImpl{
 		orderRepo:       orderRepo,
 		inventoryClient: inventoryClient,
 		paymentClient:   paymentClient,
+		orderProducer:   orderProducer,
 	}
 }
 
-// CreateOrder creates a new order with the specified parts for a user
 func (s *OrderServiceImpl) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) (orderv1.CreateOrderRes, error) {
 	log.Printf("Creating order for user %s with parts %v", req.UserUUID, req.PartUuids)
 
@@ -78,7 +85,6 @@ func (s *OrderServiceImpl) CreateOrder(ctx context.Context, req *orderv1.CreateO
 	return converter.ToCreateOrderResponse(order, totalPrice), nil
 }
 
-// GetOrder retrieves an order by its UUID
 func (s *OrderServiceImpl) GetOrder(ctx context.Context, params orderv1.GetOrderParams) (orderv1.GetOrderRes, error) {
 	log.Printf("Getting order %s", params.OrderUUID)
 
@@ -97,7 +103,6 @@ func (s *OrderServiceImpl) GetOrder(ctx context.Context, params orderv1.GetOrder
 	return converter.ToGetOrderResponse(order, totalPrice), nil
 }
 
-// PayOrder processes payment for an order using the specified payment method
 func (s *OrderServiceImpl) PayOrder(ctx context.Context, req *orderv1.PayOrderRequest, params orderv1.PayOrderParams) (orderv1.PayOrderRes, error) {
 	log.Printf("Processing payment for order %s with method %s", params.OrderUUID, req.PaymentMethod)
 
@@ -150,10 +155,25 @@ func (s *OrderServiceImpl) PayOrder(ctx context.Context, req *orderv1.PayOrderRe
 
 	log.Printf("Payment successful for order %s, transaction: %s", params.OrderUUID, transactionUUID)
 
+	// Отправляем событие OrderPaid
+	if s.orderProducer != nil {
+		event := &model.OrderPaidEvent{
+			EventUUID:       uuid.New().String(),
+			OrderUUID:       params.OrderUUID.String(),
+			UserUUID:        order.UserUUID.String(),
+			PaymentMethod:   string(req.PaymentMethod),
+			TransactionUUID: transactionUUID.String(),
+		}
+
+		if err := s.orderProducer.SendOrderPaid(ctx, event); err != nil {
+			log.Printf("Failed to send OrderPaid event for order %s: %v", params.OrderUUID, err)
+			// Не возвращаем ошибку, так как оплата уже прошла успешно
+		}
+	}
+
 	return converter.ToPayOrderResponse(transactionUUID), nil
 }
 
-// CancelOrder cancels an order if it is in pending payment status
 func (s *OrderServiceImpl) CancelOrder(ctx context.Context, params orderv1.CancelOrderParams) (orderv1.CancelOrderRes, error) {
 	log.Printf("Cancelling order %s", params.OrderUUID)
 
@@ -190,7 +210,6 @@ func (s *OrderServiceImpl) CancelOrder(ctx context.Context, params orderv1.Cance
 	return &orderv1.CancelOrderNoContent{}, nil
 }
 
-// NewError creates a standardized internal server error response
 func (s *OrderServiceImpl) NewError(ctx context.Context, err error) *orderv1.InternalServerErrorStatusCode {
 	log.Printf("Internal error: %v", err)
 	return &orderv1.InternalServerErrorStatusCode{

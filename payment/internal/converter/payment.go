@@ -47,7 +47,7 @@ func ToServicePayOrderRequest(protoReq *paymentv1.PayOrderRequest) (*model.PayOr
 	return &model.PayOrderRequest{
 		OrderUUID:     orderUUID,
 		PaymentMethod: ToServicePaymentMethod(protoReq.PaymentMethod),
-		Amount:        0.0, // Default amount, could be calculated from order
+		Amount:        0.0,
 	}, nil
 }
 

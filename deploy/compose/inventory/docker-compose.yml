@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  inventory:
+    build:
+      context: ../../../
+      dockerfile: deploy/docker/inventory/Dockerfile
+    container_name: microservices-inventory
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-console}
+      INVENTORY_GRPC_ADDRESS: ${INVENTORY_GRPC_ADDRESS:-:50051}
+      INVENTORY_MONGO_URI: ${INVENTORY_MONGO_URI:-mongodb://mongo:27017}
+      INVENTORY_MONGO_DATABASE: ${INVENTORY_MONGO_DATABASE:-inventory}
+    ports:
+      - "${INVENTORY_GRPC_PORT:-50051}:50051"
+    depends_on:
+      - mongo
+    networks:
+      - microservices-network
+    env_file:
+      - ../../../inventory/.env
+
+  mongo:
+    image: mongo:7.0
+    container_name: inventory-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-inventory}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - microservices-network
+
+volumes:
+  mongo_data:
+
+networks:
+  microservices-network:
+    external: true

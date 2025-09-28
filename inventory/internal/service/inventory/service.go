@@ -26,7 +26,6 @@ func NewInventoryService(partRepo repository.PartRepository) *InventoryServiceIm
 	}
 }
 
-// GetPart retrieves a part by its UUID from the inventory
 func (s *InventoryServiceImpl) GetPart(ctx context.Context, req *inventoryv1.GetPartRequest) (*inventoryv1.GetPartResponse, error) {
 	log.Printf("GetPart request received for UUID: %s", req.Uuid)
 
@@ -54,7 +53,6 @@ func (s *InventoryServiceImpl) GetPart(ctx context.Context, req *inventoryv1.Get
 	}, nil
 }
 
-// ListParts retrieves a list of parts matching the provided filter criteria
 func (s *InventoryServiceImpl) ListParts(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
 	log.Printf("ListParts request received with filter: %+v", req.Filter)
 

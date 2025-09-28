@@ -26,34 +26,28 @@ func NewPaymentService(paymentRepo repository.PaymentRepository) *PaymentService
 	}
 }
 
-// PayOrder processes payment for an order and returns a transaction UUID
 func (s *PaymentServiceImpl) PayOrder(ctx context.Context, req *paymentv1.PayOrderRequest) (*paymentv1.PayOrderResponse, error) {
 	log.Printf("Processing payment for order %s with method %s", req.OrderUuid, req.PaymentMethod)
 
-	// Convert request to service model
 	payReq, err := converter.ToServicePayOrderRequest(req)
 	if err != nil {
 		log.Printf("Failed to convert payment request: %v", err)
 		return nil, err
 	}
 
-	// Validate payment method
 	if payReq.PaymentMethod == model.PaymentMethodUnknown {
 		log.Printf("Invalid payment method: %s", req.PaymentMethod)
 		return nil, model.NewInvalidPaymentMethodError(payReq.PaymentMethod)
 	}
 
-	// Validate amount (basic validation)
 	if payReq.Amount < 0 {
 		log.Printf("Invalid amount: %f", payReq.Amount)
 		return nil, model.NewInvalidAmountError(payReq.Amount)
 	}
 
-	// Generate transaction UUID
 	transactionUUID := uuid.New()
 	paymentUUID := uuid.New()
 
-	// Create payment record
 	payment := &model.Payment{
 		UUID:            paymentUUID,
 		OrderUUID:       payReq.OrderUUID,
@@ -65,7 +59,6 @@ func (s *PaymentServiceImpl) PayOrder(ctx context.Context, req *paymentv1.PayOrd
 		UpdatedAt:       time.Now(),
 	}
 
-	// Save payment to repository
 	if err := s.paymentRepo.Create(ctx, payment); err != nil {
 		log.Printf("Failed to create payment: %v", err)
 		return nil, model.NewInternalError(err)

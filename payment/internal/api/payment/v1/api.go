@@ -20,7 +20,6 @@ func NewAPIHandler(paymentService service.PaymentService) *APIHandler {
 	}
 }
 
-// PayOrder handles PayOrder gRPC requests
 func (h *APIHandler) PayOrder(ctx context.Context, req *paymentv1.PayOrderRequest) (*paymentv1.PayOrderResponse, error) {
 	return h.paymentService.PayOrder(ctx, req)
 }
